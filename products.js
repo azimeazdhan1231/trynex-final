@@ -166,8 +166,27 @@ function handleAdvancedSearch(e) {
     
     if (query.length < 2) {
         clearSearchSuggestions();
+        filteredProducts = [...allProducts];
+        renderProducts();
+        updateResultsCount();
         return;
     }
+    
+    // Filter products in real time
+    filteredProducts = allProducts.filter(product => {
+        const searchableText = [
+            product.name || '',
+            product.category || '',
+            product.description || '',
+            product.name_bn || ''
+        ].join(' ').toLowerCase();
+        
+        return searchableText.includes(query);
+    });
+    
+    currentPage = 1;
+    renderProducts();
+    updateResultsCount();
     
     const suggestions = generateSearchSuggestions(query);
     displaySearchSuggestions(suggestions);

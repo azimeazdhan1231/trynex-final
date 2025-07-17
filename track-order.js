@@ -62,16 +62,14 @@ function trackOrder() {
 
 // Get order by ID
 function getOrderById(orderId) {
-    // First check local storage
-    const localOrders = JSON.parse(localStorage.getItem('trynex_orders') || '{}');
+    // Check local storage orders array
+    const localOrders = JSON.parse(localStorage.getItem('trynex_orders') || '[]');
     
-    if (localOrders[orderId]) {
-        return localOrders[orderId];
-    }
+    // Find order by order_id field
+    const order = localOrders.find(o => o.order_id === orderId);
     
-    // If not found locally, generate a demo order for testing
-    if (orderId.startsWith('TRX2025')) {
-        return generateDemoOrder(orderId);
+    if (order) {
+        return order;
     }
     
     return null;
@@ -424,22 +422,33 @@ function displayOrderStatus(order) {
     const orderStatus = document.getElementById('order-status');
     const orderNotFound = document.getElementById('order-not-found');
 
-    // Hide not found message
-    orderNotFound.style.display = 'none';
+    if (orderNotFound) orderNotFound.style.display = 'none';
 
-    // Populate order details
-    document.getElementById('display-order-id').textContent = order.order_id;
-    document.getElementById('display-order-date').textContent = formatDate(order.date);
-    document.getElementById('display-total-amount').textContent = `৳${order.total}`;
-    document.getElementById('display-payment-method').textContent = formatPaymentMethod(order.payment_method);
-    document.getElementById('display-customer-name').textContent = order.customer_name;
-    document.getElementById('display-customer-phone').textContent = order.customer_phone;
-    document.getElementById('display-customer-address').textContent = `${order.customer_address}, ${order.thana}, ${order.district}`;
+    // Populate order details safely
+    const displayOrderId = document.getElementById('display-order-id');
+    const displayOrderDate = document.getElementById('display-order-date');
+    const displayTotalAmount = document.getElementById('display-total-amount');
+    const displayPaymentMethod = document.getElementById('display-payment-method');
+    const displayCustomerName = document.getElementById('display-customer-name');
+    const displayCustomerPhone = document.getElementById('display-customer-phone');
+    const displayCustomerAddress = document.getElementById('display-customer-address');
+
+    if (displayOrderId) displayOrderId.textContent = order.order_id || 'N/A';
+    if (displayOrderDate) displayOrderDate.textContent = formatDate(order.date);
+    if (displayTotalAmount) displayTotalAmount.textContent = `৳${order.total || 0}`;
+    if (displayPaymentMethod) displayPaymentMethod.textContent = formatPaymentMethod(order.payment_method);
+    if (displayCustomerName) displayCustomerName.textContent = order.customer_name || 'N/A';
+    if (displayCustomerPhone) displayCustomerPhone.textContent = order.customer_phone || 'N/A';
+    if (displayCustomerAddress) {
+        displayCustomerAddress.textContent = `${order.customer_address || ''}, ${order.thana || ''}, ${order.district || ''}`;
+    }
 
     // Update status badge
     const statusBadge = document.getElementById('order-status-badge');
-    statusBadge.textContent = formatStatus(order.status);
-    statusBadge.className = `order-status-badge status-${order.status}`;
+    if (statusBadge) {
+        statusBadge.textContent = formatStatus(order.status || 'pending');
+        statusBadge.className = `order-status-badge status-${order.status || 'pending'}`;
+    }
 
     // Update timeline
     updateTimeline(order);
@@ -448,7 +457,7 @@ function displayOrderStatus(order) {
     displayOrderItems(order.items);
 
     // Show order status section
-    orderStatus.style.display = 'block';
+    if (orderStatus) orderStatus.style.display = 'block';
 }
 
 // Format date

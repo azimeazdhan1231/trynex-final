@@ -655,7 +655,7 @@ function updateCartUI() {
 
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
+
     let discount = 0;
     if (cart.promoCode) {
         if (cart.promoCode.type === 'percentage') {
@@ -664,7 +664,7 @@ function updateCartUI() {
             discount = cart.promoCode.discount;
         }
     }
-    
+
     const deliveryFee = 80; // Default delivery fee
     const totalPrice = subtotal - discount + deliveryFee;
 
@@ -726,9 +726,78 @@ let selectedPaymentMethod = null;
 let currentStep = 1;
 let orderData = {};
 
-// Enhanced cart with promo code support
-if (!cart.promoCode) {
-    cart.promoCode = null;
+// Apply promo code function
+function applyPromoCode() {
+    const promoInput = document.getElementById('promo-code');
+    const promoStatus = document.getElementById('promo-status');
+
+    if (!promoInput || !promoStatus) return;
+
+    const code = promoInput.value.trim().toUpperCase();
+
+    if (!code) {
+        showPromoStatus('Please enter a promo code', 'error');
+        return;
+    }
+
+    // Default promo codes
+    const promoCodes = {
+        "WELCOME10": { discount: 10, type: "percentage", active: true, description: "10% off for new customers" },
+        "SAVE50": { discount: 50, type: "fixed", active: true, description: "৳50 off on orders above ৳500" },
+        "FREESHIP": { discount: 80, type: "shipping", active: true, description: "Free shipping" }
+    };
+
+    // Check if promo code exists and is valid
+    if (!promoCodes[code] || !promoCodes[code].active) {
+        showPromoStatus('Invalid or expired promo code', 'error');
+        return;
+    }
+
+    const promo = promoCodes[code];
+
+    // Check minimum order requirement
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    if (promo.min_order && subtotal < promo.min_order) {
+        showPromoStatus(`Minimum order of ৳${promo.min_order} required`, 'error');
+        return;
+    }
+
+    // Apply the promo code
+    cart.promoCode = {
+        code: code,
+        discount: promo.discount,
+        type: promo.type,
+        description: promo.description
+    };
+
+    showPromoStatus(`✅ Promo applied: ${promo.description}`, 'success');
+    updateCartUI();
+    saveCartToStorage();
+
+    // Clear the input
+    promoInput.value = '';
+}
+
+// Show promo status
+function showPromoStatus(message, type) {
+    const promoStatus = document.getElementById('promo-status');
+    if (promoStatus) {
+        promoStatus.textContent = message;
+        promoStatus.className = `promo-status ${type}`;
+
+        setTimeout(() => {
+            promoStatus.textContent = '';
+            promoStatus.className = 'promo-status';
+        }, 3000);
+    }
+}
+
+// Initialize cart with promo code support
+if (!window.cart) {
+    window.cart = [];
+}
+if (!window.cart.promoCode) {
+    window.cart.promoCode = null;
 }
 
 // Go to specific step in checkout
@@ -825,7 +894,7 @@ function setupPaymentMethodSelection() {
             }
         });
     });
-    
+
     // Also handle radio button direct clicks
     const radios = document.querySelectorAll('input[name="payment-method"]');
     radios.forEach(radio => {
@@ -834,15 +903,15 @@ function setupPaymentMethodSelection() {
             if (card) {
                 paymentCards.forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');
-                
+
                 selectedPaymentMethod = radio.value;
-                
+
                 if (radio.value === 'cash') {
                     if (advanceSection) advanceSection.style.display = 'none';
                 } else {
                     if (advanceSection) advanceSection.style.display = 'block';
                 }
-                
+
                 updateOrderReview();
             }
         });
@@ -943,7 +1012,7 @@ function saveOrder(orderData) {
     const orders = JSON.parse(localStorage.getItem('trynex_orders') || '[]');
     orders.push(orderData);
     localStorage.setItem('trynex_orders', JSON.stringify(orders));
-    
+
     // Try to save to admin system (if available)
     try {
         saveOrderToAdmin(orderData);
@@ -1085,12 +1154,12 @@ function placeOrder() {
 // Show order confirmation modal
 function showOrderConfirmation(orderId, whatsappMessage) {
     document.getElementById('order-id-display').textContent = orderId;
-    
+
     // Store WhatsApp message for optional use
     window.currentOrderWhatsApp = whatsappMessage;
-    
+
     openModal('order-confirmation-modal');
-    
+
     // Auto-close after 10 seconds
     setTimeout(() => {
         closeModal('order-confirmation-modal');
@@ -1477,7 +1546,7 @@ function addOrderConfirmationModal() {
                 <div class="modal-header">
                     <h3>Order Placed Successfully!</h3>
                 </div>
-                
+
                 <div class="modal-body">
                     <div class="order-success">
                         <div class="success-icon">
@@ -1485,7 +1554,7 @@ function addOrderConfirmationModal() {
                         </div>
                         <h4>Thank you for your order!</h4>
                         <p>Your order has been placed successfully and is now being processed.</p>
-                        
+
                         <div class="order-details">
                             <div class="order-info">
                                 <strong>Order ID:</strong>
@@ -1494,7 +1563,7 @@ function addOrderConfirmationModal() {
                                     <i class="fas fa-copy"></i>
                                 </button>
                             </div>
-                            
+
                             <div class="tracking-info">
                                 <p>You can track your order status using the Order ID above.</p>
                                 <a href="track-order.html" class="track-order-btn">
@@ -1502,7 +1571,7 @@ function addOrderConfirmationModal() {
                                     Track Your Order
                                 </a>
                             </div>
-                            
+
                             <div class="contact-info">
                                 <p>We will contact you soon to confirm delivery details.</p>
                                 <div class="contact-buttons">
@@ -1519,7 +1588,7 @@ function addOrderConfirmationModal() {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="modal-footer">
                     <button class="continue-shopping-btn" onclick="closeOrderConfirmation()">
                         Continue Shopping
@@ -1528,7 +1597,7 @@ function addOrderConfirmationModal() {
             </div>
         </div>
     `;
-    
+
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
@@ -1546,7 +1615,7 @@ document.body.insertAdjacentHTML('beforeend', `
                 <h3>Shopping Cart</h3>
                 <button class="modal-close" onclick="closeModal('cart-modal')">
                     <i class="fas fa-times"></i>
-                </button>
+                </button
             </div>
 
             <div class="modal-body">
@@ -1558,7 +1627,17 @@ document.body.insertAdjacentHTML('beforeend', `
                 <div class="cart-items" id="cart-items">
                     <!-- Cart items will be dynamically added here -->
                 </div>
-                
+
+                <!-- Promo Code -->
+                <div class="promo-section" id="promo-section">
+                    <label for="promo-code">Promo Code:</label>
+                    <div class="promo-input-group">
+                        <input type="text" id="promo-code" placeholder="Enter promo code">
+                        <button onclick="applyPromoCode()">Apply</button>
+                    </div>
+                    <div class="promo-status" id="promo-status"></div>
+                </div>
+
                 <!-- Special Instructions -->
                 <div class="instructions-section">
                     <label for="special-instructions-cart">Any Special Instructions:</label>
@@ -1568,6 +1647,8 @@ document.body.insertAdjacentHTML('beforeend', `
 
             <div class="modal-footer" id="cart-footer">
                 <div class="cart-total">
+                    Subtotal: ৳<span id="cart-subtotal">0</span>
+                    <br>
                     Total: ৳<span id="cart-total">0</span>
                 </div>
                 <button class="checkout-btn" onclick="proceedToCheckout()">

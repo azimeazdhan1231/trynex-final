@@ -1,10 +1,14 @@
-
 backend:
   name: git-gateway
   branch: main
 
-media_folder: "EcommercePro/uploads"
-public_folder: "/uploads"
+local_backend: true
+
+media_folder: "EcommerceProv3/images/uploads"
+public_folder: "/images/uploads"
+
+site_url: https://your-site.netlify.app
+display_url: https://your-site.netlify.app
 
 collections:
   - name: "products"
@@ -161,4 +165,4 @@ collections:
           - {label: "Email", name: "email", widget: "string", required: false}
           - {label: "Facebook URL", name: "facebook", widget: "string", required: false}
           - {label: "Instagram URL", name: "instagram", widget: "string", required: false}
-          - {label: "WhatsApp URL", name: "whatsapp", widget: "string", default: "https://wa.me/01747292277"}
+          - {label: "WhatsApp URL", name: "whatsapp_number", widget: "string", default: "https://wa.me/01747292277"}
