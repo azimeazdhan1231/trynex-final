@@ -1,632 +1,605 @@
 
-// Track Order JavaScript
-let orders = {};
+// Track Order Page Functionality
+let currentOrder = null;
 
-// Initialize Track Order Page
 document.addEventListener('DOMContentLoaded', function() {
-    if (window.location.pathname.includes('track-order.html')) {
-        initializeTrackOrderPage();
-    }
+    initializeTrackOrder();
 });
 
-function initializeTrackOrderPage() {
-    loadOrdersFromStorage();
-    setupTrackOrderEventListeners();
+function initializeTrackOrder() {
+    const trackBtn = document.getElementById('track-btn');
+    const orderIdInput = document.getElementById('order-id-input');
     
-    // Check if there's an order ID in URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderId = urlParams.get('orderId');
-    if (orderId) {
-        document.getElementById('order-id-input').value = orderId;
-        trackOrder();
+    // Setup event listeners
+    if (trackBtn) {
+        trackBtn.addEventListener('click', trackOrder);
     }
-}
-
-// Setup event listeners
-function setupTrackOrderEventListeners() {
-    const orderInput = document.getElementById('order-id-input');
-    if (orderInput) {
-        orderInput.addEventListener('keypress', (e) => {
+    
+    if (orderIdInput) {
+        orderIdInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 trackOrder();
             }
         });
+        
+        // Format input as user types
+        orderIdInput.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
     }
+    
+    // Check for order ID in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('id');
+    if (orderId) {
+        orderIdInput.value = orderId;
+        trackOrder();
+    }
+    
+    // Load recent orders
+    loadRecentOrders();
+    
+    // Auto-refresh order status every 30 seconds if order is active
+    setInterval(() => {
+        if (currentOrder && ['pending', 'confirmed', 'processing', 'shipped'].includes(currentOrder.status)) {
+            refreshOrderStatus();
+        }
+    }, 30000);
 }
 
-// Track order function
 function trackOrder() {
-    const orderInput = document.getElementById('order-id-input');
-    const orderId = orderInput.value.trim().toUpperCase();
+    const orderIdInput = document.getElementById('order-id-input');
+    const orderId = orderIdInput.value.trim();
     
     if (!orderId) {
-        showErrorMessage('Please enter an order ID');
+        showError('Please enter an Order ID');
         return;
     }
     
-    showLoading();
+    if (!isValidOrderId(orderId)) {
+        showError('Invalid Order ID format. Please check and try again.');
+        return;
+    }
+    
+    // Show loading
+    showLoading(true);
     
     // Simulate API call delay
     setTimeout(() => {
-        hideLoading();
-        
-        const order = getOrderById(orderId);
+        const order = findOrder(orderId);
+        showLoading(false);
         
         if (order) {
-            displayOrderStatus(order);
+            displayOrder(order);
+            currentOrder = order;
+            
+            // Update URL
+            const url = new URL(window.location);
+            url.searchParams.set('id', orderId);
+            window.history.replaceState({}, '', url);
         } else {
-            showOrderNotFound();
+            showNoOrder();
         }
-    }, 1500);
+    }, 1000);
 }
 
-// Get order by ID
-function getOrderById(orderId) {
-    // Check local storage orders array
-    const localOrders = JSON.parse(localStorage.getItem('trynex_orders') || '[]');
-    
-    // Find order by order_id field
-    const order = localOrders.find(o => o.order_id === orderId);
+function isValidOrderId(orderId) {
+    // TryneX order ID format: TRX + 6 digits + 5 letters
+    const pattern = /^TRX\d{6}[A-Z]{5}$/;
+    return pattern.test(orderId);
+}
+
+function findOrder(orderId) {
+    // First check localStorage for orders
+    const orders = JSON.parse(localStorage.getItem('orders')) || [];
+    let order = orders.find(o => o.id === orderId);
     
     if (order) {
         return order;
     }
     
-    return null;
-}
-
-// Generate demo order for testing
-function generateDemoOrder(orderId) {
-    const statuses = ['placed', 'confirmed', 'processing', 'shipped', 'delivered'];
-    const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-    
-    return {
-        id: orderId,
-        status: randomStatus,
-        customer: {
-            name: 'Demo Customer',
-            phone: '01712345678',
-            district: 'Dhaka',
-            thana: 'Dhanmondi',
-            address: 'House 123, Road 456, Dhanmondi'
+    // Demo orders for testing
+    const demoOrders = {
+        'TRX123456ABCDE': {
+            id: 'TRX123456ABCDE',
+            status: 'shipped',
+            paymentStatus: 'paid',
+            total: 1250,
+            items: [
+                {
+                    id: 1,
+                    name: 'Premium Ceramic Mug',
+                    quantity: 2,
+                    price: 550,
+                    image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?w=100&h=100&fit=crop'
+                },
+                {
+                    id: 2,
+                    name: 'Comfort T-Shirt',
+                    quantity: 1,
+                    price: 550,
+                    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=100&h=100&fit=crop'
+                }
+            ],
+            createdAt: '2025-01-15T10:30:00Z',
+            estimatedDelivery: '2025-01-18T18:00:00Z',
+            specialInstructions: 'Please wrap as a gift',
+            timeline: {
+                placed: '2025-01-15T10:30:00Z',
+                confirmed: '2025-01-15T11:00:00Z',
+                processing: '2025-01-15T14:00:00Z',
+                shipped: '2025-01-16T09:00:00Z',
+                delivered: null
+            }
         },
-        items: [
-            { name: 'Classic Ceramic Mug', quantity: 2, price: 550 },
-            { name: 'Premium T-Shirt', quantity: 1, price: 600 }
-        ],
-        totals: {
-            subtotal: 1700,
-            deliveryFee: 80,
-            discount: 0,
-            total: 1780
-        },
-        payment: {
-            method: 'bKash',
-            status: 'paid',
-            transactionId: 'BKS123456789',
-            advancePaid: 100,
-            remaining: 1680
-        },
-        timestamps: {
-            placed: new Date(Date.now() - 86400000 * 2).toLocaleString(),
-            confirmed: randomStatus !== 'placed' ? new Date(Date.now() - 86400000 * 1.5).toLocaleString() : null,
-            processing: ['processing', 'shipped', 'delivered'].includes(randomStatus) ? new Date(Date.now() - 86400000).toLocaleString() : null,
-            shipped: ['shipped', 'delivered'].includes(randomStatus) ? new Date(Date.now() - 43200000).toLocaleString() : null,
-            delivered: randomStatus === 'delivered' ? new Date().toLocaleString() : null
-        },
-        specialInstructions: 'Please handle with care'
+        'TRX789012FGHIJ': {
+            id: 'TRX789012FGHIJ',
+            status: 'processing',
+            paymentStatus: 'paid',
+            total: 850,
+            items: [
+                {
+                    id: 3,
+                    name: 'Luxury Gift Hamper',
+                    quantity: 1,
+                    price: 1200,
+                    image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=100&h=100&fit=crop'
+                }
+            ],
+            createdAt: '2025-01-16T09:15:00Z',
+            estimatedDelivery: '2025-01-19T18:00:00Z',
+            specialInstructions: '',
+            timeline: {
+                placed: '2025-01-16T09:15:00Z',
+                confirmed: '2025-01-16T09:45:00Z',
+                processing: '2025-01-16T12:00:00Z',
+                shipped: null,
+                delivered: null
+            }
+        }
     };
+    
+    return demoOrders[orderId] || null;
 }
 
-// Display order status
-function displayOrderStatus(order) {
+function displayOrder(order) {
+    const orderResult = document.getElementById('order-result');
+    const noOrder = document.getElementById('no-order');
+    
+    if (orderResult) orderResult.classList.add('show');
+    if (noOrder) noOrder.style.display = 'none';
+    
+    // Update order header
+    const displayOrderId = document.getElementById('display-order-id');
+    const orderDate = document.getElementById('order-date');
     const orderStatus = document.getElementById('order-status');
-    const orderNotFound = document.getElementById('order-not-found');
     
-    if (orderStatus) orderStatus.style.display = 'block';
-    if (orderNotFound) orderNotFound.style.display = 'none';
+    if (displayOrderId) displayOrderId.textContent = `Order #${order.id}`;
+    if (orderDate) orderDate.textContent = `Placed on ${formatDate(order.createdAt)}`;
+    if (orderStatus) {
+        orderStatus.textContent = getStatusText(order.status);
+        orderStatus.className = `order-status status-${order.status}`;
+    }
     
-    // Update order ID display
-    const orderIdDisplay = document.getElementById('display-order-id');
-    if (orderIdDisplay) orderIdDisplay.textContent = order.id;
+    // Update summary
+    const orderTotal = document.getElementById('order-total');
+    const paymentStatus = document.getElementById('payment-status');
+    const estimatedDelivery = document.getElementById('estimated-delivery');
+    const itemsCount = document.getElementById('items-count');
     
-    // Update customer details
-    updateCustomerDetails(order.customer);
-    
-    // Update order items
-    updateOrderItems(order.items);
-    
-    // Update order summary
-    updateOrderSummary(order.totals);
+    if (orderTotal) orderTotal.textContent = `৳${order.total}`;
+    if (paymentStatus) paymentStatus.textContent = order.paymentStatus === 'paid' ? 'Paid' : 'Pending';
+    if (estimatedDelivery) estimatedDelivery.textContent = formatDate(order.estimatedDelivery, true);
+    if (itemsCount) itemsCount.textContent = order.items.reduce((sum, item) => sum + item.quantity, 0);
     
     // Update timeline
-    updateTimeline(order.status, order.timestamps);
+    updateTimeline(order);
     
-    // Update additional info
-    updateDeliveryInfo(order.customer);
-    updatePaymentInfo(order.payment);
+    // Update order items
+    displayOrderItems(order.items);
+    
+    // Show special instructions if available
+    if (order.specialInstructions) {
+        const specialInstructions = document.getElementById('special-instructions');
+        const instructionsText = document.getElementById('instructions-text');
+        
+        if (specialInstructions && instructionsText) {
+            instructionsText.textContent = order.specialInstructions;
+            specialInstructions.style.display = 'block';
+        }
+    }
 }
 
-// Update customer details
-function updateCustomerDetails(customer) {
-    const customerDetails = document.getElementById('customer-details');
-    if (!customerDetails) return;
+function updateTimeline(order) {
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    const statuses = ['placed', 'confirmed', 'processing', 'shipped', 'delivered'];
     
-    customerDetails.innerHTML = `
-        <div class="detail-row">
-            <strong>Name:</strong> ${customer.name}
-        </div>
-        <div class="detail-row">
-            <strong>Phone:</strong> ${customer.phone}
-        </div>
-        <div class="detail-row">
-            <strong>Address:</strong> ${customer.address}, ${customer.thana}, ${customer.district}
-        </div>
-    `;
+    timelineItems.forEach((item, index) => {
+        const status = statuses[index];
+        const timestamp = order.timeline[status];
+        
+        // Remove all classes
+        item.classList.remove('completed', 'active');
+        
+        if (timestamp) {
+            // Completed step
+            item.classList.add('completed');
+            const timestampElement = document.getElementById(`timestamp-${status}`);
+            if (timestampElement) {
+                timestampElement.textContent = formatDateTime(timestamp);
+            }
+        } else if (status === order.status) {
+            // Current active step
+            item.classList.add('active');
+        }
+    });
 }
 
-// Update order items
-function updateOrderItems(items) {
-    const orderItemsList = document.getElementById('order-items-list');
-    if (!orderItemsList) return;
+function displayOrderItems(items) {
+    const itemsList = document.getElementById('order-items-list');
+    if (!itemsList) return;
     
-    orderItemsList.innerHTML = items.map(item => `
+    itemsList.innerHTML = items.map(item => `
         <div class="order-item">
+            <img src="${item.image}" alt="${item.name}" class="item-image">
             <div class="item-details">
-                <span class="item-name">${item.name}</span>
-                <span class="item-quantity">Qty: ${item.quantity}</span>
+                <div class="item-name">${item.name}</div>
+                <div class="item-quantity">Quantity: ${item.quantity}</div>
             </div>
             <div class="item-price">৳${item.price * item.quantity}</div>
         </div>
     `).join('');
 }
 
-// Update order summary
-function updateOrderSummary(totals) {
-    const orderTotalDetails = document.getElementById('order-total-details');
-    if (!orderTotalDetails) return;
+function showNoOrder() {
+    const orderResult = document.getElementById('order-result');
+    const noOrder = document.getElementById('no-order');
     
-    orderTotalDetails.innerHTML = `
-        <div class="summary-row">
-            <span>Subtotal:</span>
-            <span>৳${totals.subtotal}</span>
-        </div>
-        ${totals.discount > 0 ? `
-        <div class="summary-row">
-            <span>Discount:</span>
-            <span class="discount">-৳${totals.discount}</span>
-        </div>
-        ` : ''}
-        <div class="summary-row">
-            <span>Delivery Fee:</span>
-            <span>৳${totals.deliveryFee}</span>
-        </div>
-        <div class="summary-row total">
-            <span><strong>Total:</strong></span>
-            <span><strong>৳${totals.total}</strong></span>
-        </div>
-    `;
+    if (orderResult) orderResult.classList.remove('show');
+    if (noOrder) noOrder.style.display = 'block';
 }
 
-// Update timeline
-function updateTimeline(currentStatus, timestamps) {
-    const timelineItems = document.querySelectorAll('.timeline-item');
+function showLoading(show) {
+    const trackBtn = document.getElementById('track-btn');
+    if (!trackBtn) return;
     
-    const statusOrder = ['placed', 'confirmed', 'processing', 'shipped', 'delivered'];
-    const currentIndex = statusOrder.indexOf(currentStatus);
+    if (show) {
+        trackBtn.disabled = true;
+        trackBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Tracking...';
+    } else {
+        trackBtn.disabled = false;
+        trackBtn.innerHTML = '<i class="fas fa-search"></i> Track Order';
+    }
+}
+
+function showError(message) {
+    // Create error notification
+    const notification = document.createElement('div');
+    notification.className = 'error-notification';
+    notification.innerHTML = `
+        <i class="fas fa-exclamation-circle"></i>
+        <span>${message}</span>
+    `;
     
-    timelineItems.forEach((item, index) => {
-        const status = item.dataset.status;
-        const statusIndex = statusOrder.indexOf(status);
+    notification.style.cssText = `
+        position: fixed;
+        top: 120px;
+        right: 20px;
+        background: #dc3545;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        z-index: var(--z-tooltip);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        transform: translateX(100%);
+        transition: var(--transition);
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
+}
+
+function loadRecentOrders() {
+    const orders = JSON.parse(localStorage.getItem('orders')) || [];
+    const recentOrders = document.getElementById('recent-orders');
+    const recentList = document.getElementById('recent-list');
+    
+    if (orders.length === 0) {
+        if (recentOrders) recentOrders.style.display = 'none';
+        return;
+    }
+    
+    if (recentList) {
+        const sortedOrders = orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
         
-        // Remove all status classes
-        item.classList.remove('active', 'completed');
+        recentList.innerHTML = sortedOrders.map(order => `
+            <div class="recent-item" onclick="loadOrder('${order.id}')">
+                <div class="recent-info">
+                    <div class="recent-id">${order.id}</div>
+                    <div class="recent-date">${formatDate(order.createdAt)}</div>
+                </div>
+                <div class="order-status status-${order.status}">
+                    ${getStatusText(order.status)}
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
+function loadOrder(orderId) {
+    const orderIdInput = document.getElementById('order-id-input');
+    if (orderIdInput) {
+        orderIdInput.value = orderId;
+        trackOrder();
+    }
+}
+
+function refreshOrderStatus() {
+    if (!currentOrder) return;
+    
+    // In a real application, this would make an API call
+    // For demo, we'll simulate status updates
+    const updatedOrder = findOrder(currentOrder.id);
+    if (updatedOrder && updatedOrder.status !== currentOrder.status) {
+        displayOrder(updatedOrder);
+        currentOrder = updatedOrder;
         
-        if (statusIndex < currentIndex) {
-            item.classList.add('completed');
-        } else if (statusIndex === currentIndex) {
-            item.classList.add('active');
-        }
+        // Show notification of status change
+        showStatusUpdateNotification(updatedOrder.status);
+    }
+}
+
+function showStatusUpdateNotification(status) {
+    const notification = document.createElement('div');
+    notification.className = 'status-notification';
+    notification.innerHTML = `
+        <i class="fas fa-info-circle"></i>
+        <span>Order status updated: ${getStatusText(status)}</span>
+    `;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 120px;
+        right: 20px;
+        background: var(--primary-gold);
+        color: var(--primary-black);
+        padding: 1rem 1.5rem;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        z-index: var(--z-tooltip);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        transform: translateX(100%);
+        transition: var(--transition);
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => notification.remove(), 300);
+    }, 5000);
+}
+
+function contactSupport() {
+    const whatsappNumber = '01747292277';
+    let message = 'Hi! I need support regarding my order';
+    
+    if (currentOrder) {
+        message = `Hi! I need support regarding my order ${currentOrder.id}. Current status: ${getStatusText(currentOrder.status)}`;
+    }
+    
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+}
+
+function copyOrderId() {
+    if (!currentOrder) return;
+    
+    navigator.clipboard.writeText(currentOrder.id).then(() => {
+        // Show success notification
+        const notification = document.createElement('div');
+        notification.className = 'copy-notification';
+        notification.innerHTML = `
+            <i class="fas fa-check"></i>
+            <span>Order ID copied to clipboard!</span>
+        `;
         
-        // Update timestamp
-        const timestampElement = item.querySelector('.timestamp');
-        if (timestampElement && timestamps[status]) {
-            timestampElement.textContent = timestamps[status];
-        }
+        notification.style.cssText = `
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            z-index: var(--z-tooltip);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transform: translateX(100%);
+            transition: var(--transition);
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
     });
 }
 
-// Update delivery info
-function updateDeliveryInfo(customer) {
-    const deliveryInfo = document.getElementById('delivery-info');
-    if (!deliveryInfo) return;
+function printOrder() {
+    if (!currentOrder) return;
     
-    deliveryInfo.innerHTML = `
-        <div class="info-row">
-            <strong>Delivery Address:</strong><br>
-            ${customer.address}<br>
-            ${customer.thana}, ${customer.district}
-        </div>
-        <div class="info-row">
-            <strong>Contact Number:</strong><br>
-            ${customer.phone}
-        </div>
-        <div class="info-row">
-            <strong>Estimated Delivery:</strong><br>
-            2-3 business days
-        </div>
+    const printWindow = window.open('', '_blank');
+    const printContent = generatePrintContent(currentOrder);
+    
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+function generatePrintContent(order) {
+    return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Order Details - ${order.id}</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #d4af37; padding-bottom: 20px; }
+                .order-info { margin-bottom: 20px; }
+                .order-info table { width: 100%; border-collapse: collapse; }
+                .order-info th, .order-info td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+                .order-info th { background-color: #f8f9fa; }
+                .items-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                .items-table th, .items-table td { padding: 12px; border: 1px solid #ddd; }
+                .items-table th { background-color: #d4af37; color: white; }
+                .total { text-align: right; font-weight: bold; font-size: 18px; margin-top: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>TryneX</h1>
+                <h2>Order Details</h2>
+            </div>
+            
+            <div class="order-info">
+                <table>
+                    <tr><th>Order ID</th><td>${order.id}</td></tr>
+                    <tr><th>Date</th><td>${formatDate(order.createdAt)}</td></tr>
+                    <tr><th>Status</th><td>${getStatusText(order.status)}</td></tr>
+                    <tr><th>Payment Status</th><td>${order.paymentStatus === 'paid' ? 'Paid' : 'Pending'}</td></tr>
+                    <tr><th>Estimated Delivery</th><td>${formatDate(order.estimatedDelivery, true)}</td></tr>
+                </table>
+            </div>
+            
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${order.items.map(item => `
+                        <tr>
+                            <td>${item.name}</td>
+                            <td>${item.quantity}</td>
+                            <td>৳${item.price}</td>
+                            <td>৳${item.price * item.quantity}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            
+            <div class="total">
+                Total: ৳${order.total}
+            </div>
+            
+            ${order.specialInstructions ? `
+                <div style="margin-top: 20px;">
+                    <strong>Special Instructions:</strong><br>
+                    ${order.specialInstructions}
+                </div>
+            ` : ''}
+            
+            <div style="margin-top: 30px; text-align: center; color: #666;">
+                <p>For support, contact us at 01747-292277</p>
+                <p>Thank you for shopping with TryneX!</p>
+            </div>
+        </body>
+        </html>
     `;
 }
 
-// Update payment info
-function updatePaymentInfo(payment) {
-    const paymentInfo = document.getElementById('payment-info');
-    if (!paymentInfo) return;
-    
-    paymentInfo.innerHTML = `
-        <div class="info-row">
-            <strong>Payment Method:</strong><br>
-            ${payment.method}
-        </div>
-        <div class="info-row">
-            <strong>Payment Status:</strong><br>
-            <span class="status-badge ${payment.status}">${payment.status.toUpperCase()}</span>
-        </div>
-        ${payment.transactionId ? `
-        <div class="info-row">
-            <strong>Transaction ID:</strong><br>
-            ${payment.transactionId}
-        </div>
-        ` : ''}
-        <div class="info-row">
-            <strong>Advance Paid:</strong><br>
-            ৳${payment.advancePaid}
-        </div>
-        <div class="info-row">
-            <strong>Remaining:</strong><br>
-            ৳${payment.remaining}
-        </div>
-    `;
-}
-
-// Show order not found
-function showOrderNotFound() {
-    const orderStatus = document.getElementById('order-status');
-    const orderNotFound = document.getElementById('order-not-found');
-    
-    if (orderStatus) orderStatus.style.display = 'none';
-    if (orderNotFound) orderNotFound.style.display = 'block';
-}
-
-// Clear tracking form
-function clearTrackingForm() {
-    const orderInput = document.getElementById('order-id-input');
-    const orderStatus = document.getElementById('order-status');
-    const orderNotFound = document.getElementById('order-not-found');
-    
-    if (orderInput) orderInput.value = '';
-    if (orderStatus) orderStatus.style.display = 'none';
-    if (orderNotFound) orderNotFound.style.display = 'none';
-    
-    orderInput.focus();
-}
-
-// Load orders from storage
-function loadOrdersFromStorage() {
-    try {
-        const storedOrders = localStorage.getItem('trynex_orders');
-        if (storedOrders) {
-            orders = JSON.parse(storedOrders);
-        }
-    } catch (error) {
-        console.error('Error loading orders from storage:', error);
-        orders = {};
-    }
-}
-
-// Export functions for global access
-window.trackOrder = trackOrder;
-window.clearTrackingForm = clearTrackingForm;
-// Track Order JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    setupTrackingEventListeners();
-    loadCartFromStorage();
-    updateCartUI();
-});
-
-function setupTrackingEventListeners() {
-    const orderInput = document.getElementById('order-id-input');
-    const hamburger = document.getElementById('hamburger');
-    const navMenu = document.getElementById('nav-menu');
-
-    // Enter key support for tracking
-    if (orderInput) {
-        orderInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                trackOrder();
-            }
-        });
-    }
-
-    // Mobile menu toggle
-    if (hamburger && navMenu) {
-        hamburger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            hamburger.classList.toggle('active');
-            navMenu.classList.toggle('active');
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!navMenu.contains(e.target) && !hamburger.contains(e.target)) {
-                hamburger.classList.remove('active');
-                navMenu.classList.remove('active');
-            }
-        });
-    }
-
-    // Cart functionality
-    const cartBtn = document.getElementById('cart-btn');
-    if (cartBtn) {
-        cartBtn.addEventListener('click', () => {
-            // Redirect to products page for cart functionality
-            window.location.href = 'products.html';
-        });
-    }
-}
-
-// Track order function
-function trackOrder() {
+function clearSearch() {
     const orderIdInput = document.getElementById('order-id-input');
-    const orderId = orderIdInput.value.trim().toUpperCase();
-
-    if (!orderId) {
-        showErrorMessage('Please enter an order ID');
-        return;
-    }
-
-    if (!isValidOrderId(orderId)) {
-        showErrorMessage('Please enter a valid order ID (e.g., TRX-ABC123-XYZ)');
-        return;
-    }
-
-    showLoading();
-
-    // Simulate loading time
-    setTimeout(() => {
-        hideLoading();
-        searchOrder(orderId);
-    }, 1500);
+    const orderResult = document.getElementById('order-result');
+    const noOrder = document.getElementById('no-order');
+    
+    if (orderIdInput) orderIdInput.value = '';
+    if (orderResult) orderResult.classList.remove('show');
+    if (noOrder) noOrder.style.display = 'none';
+    
+    currentOrder = null;
+    
+    // Clear URL parameters
+    const url = new URL(window.location);
+    url.search = '';
+    window.history.replaceState({}, '', url);
 }
 
-// Validate order ID format
-function isValidOrderId(orderId) {
-    const pattern = /^TRX-[A-Z0-9]+-[A-Z0-9]+$/;
-    return pattern.test(orderId);
+// Utility functions
+function getStatusText(status) {
+    const statusTexts = {
+        pending: 'Pending',
+        confirmed: 'Confirmed',
+        processing: 'Processing',
+        shipped: 'Shipped',
+        delivered: 'Delivered',
+        cancelled: 'Cancelled'
+    };
+    return statusTexts[status] || status;
 }
 
-// Search for order
-function searchOrder(orderId) {
-    const orders = JSON.parse(localStorage.getItem('trynex_orders') || '[]');
-    const order = orders.find(o => o.order_id === orderId);
-
-    if (order) {
-        displayOrderStatus(order);
-    } else {
-        showOrderNotFound();
-    }
-}
-
-// Display order status
-function displayOrderStatus(order) {
-    const orderStatus = document.getElementById('order-status');
-    const orderNotFound = document.getElementById('order-not-found');
-
-    if (orderNotFound) orderNotFound.style.display = 'none';
-
-    // Populate order details safely
-    const displayOrderId = document.getElementById('display-order-id');
-    const displayOrderDate = document.getElementById('display-order-date');
-    const displayTotalAmount = document.getElementById('display-total-amount');
-    const displayPaymentMethod = document.getElementById('display-payment-method');
-    const displayCustomerName = document.getElementById('display-customer-name');
-    const displayCustomerPhone = document.getElementById('display-customer-phone');
-    const displayCustomerAddress = document.getElementById('display-customer-address');
-
-    if (displayOrderId) displayOrderId.textContent = order.order_id || 'N/A';
-    if (displayOrderDate) displayOrderDate.textContent = formatDate(order.date);
-    if (displayTotalAmount) displayTotalAmount.textContent = `৳${order.total || 0}`;
-    if (displayPaymentMethod) displayPaymentMethod.textContent = formatPaymentMethod(order.payment_method);
-    if (displayCustomerName) displayCustomerName.textContent = order.customer_name || 'N/A';
-    if (displayCustomerPhone) displayCustomerPhone.textContent = order.customer_phone || 'N/A';
-    if (displayCustomerAddress) {
-        displayCustomerAddress.textContent = `${order.customer_address || ''}, ${order.thana || ''}, ${order.district || ''}`;
-    }
-
-    // Update status badge
-    const statusBadge = document.getElementById('order-status-badge');
-    if (statusBadge) {
-        statusBadge.textContent = formatStatus(order.status || 'pending');
-        statusBadge.className = `order-status-badge status-${order.status || 'pending'}`;
-    }
-
-    // Update timeline
-    updateTimeline(order);
-
-    // Display order items
-    displayOrderItems(order.items);
-
-    // Show order status section
-    if (orderStatus) orderStatus.style.display = 'block';
-}
-
-// Format date
-function formatDate(dateString) {
+function formatDate(dateString, dateOnly = false) {
     const date = new Date(dateString);
+    if (dateOnly) {
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
     return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
+        day: 'numeric'
+    });
+}
+
+function formatDateTime(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+        month: 'short',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
     });
 }
 
-// Format payment method
-function formatPaymentMethod(method) {
-    const methods = {
-        'bkash': 'bKash',
-        'nagad': 'Nagad',
-        'rocket': 'Rocket',
-        'cash': 'Cash on Delivery'
-    };
-    return methods[method] || method;
-}
-
-// Format status
-function formatStatus(status) {
-    const statuses = {
-        'pending': 'Pending',
-        'confirmed': 'Confirmed',
-        'processing': 'Processing',
-        'shipped': 'Shipped',
-        'delivered': 'Delivered',
-        'cancelled': 'Cancelled'
-    };
-    return statuses[status] || status;
-}
-
-// Update timeline based on order status
-function updateTimeline(order) {
-    const timelineItems = document.querySelectorAll('.timeline-item');
-    const statusOrder = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'];
-    const currentStatusIndex = statusOrder.indexOf(order.status);
-
-    timelineItems.forEach((item, index) => {
-        if (index <= currentStatusIndex) {
-            item.classList.add('completed');
-        } else if (index === currentStatusIndex + 1) {
-            item.classList.add('active');
-        } else {
-            item.classList.remove('completed', 'active');
-        }
-    });
-
-    // Update timestamps (in a real application, these would come from the backend)
-    const orderDate = new Date(order.date);
-    document.getElementById('timestamp-placed').textContent = formatDate(orderDate);
-
-    if (order.status !== 'pending') {
-        const confirmDate = new Date(orderDate.getTime() + 24 * 60 * 60 * 1000); // +1 day
-        document.getElementById('timestamp-payment').textContent = formatDate(confirmDate);
-    }
-
-    if (currentStatusIndex >= 2) {
-        const processingDate = new Date(orderDate.getTime() + 2 * 24 * 60 * 60 * 1000); // +2 days
-        document.getElementById('timestamp-processing').textContent = formatDate(processingDate);
-    }
-
-    if (currentStatusIndex >= 3) {
-        const shippedDate = new Date(orderDate.getTime() + 3 * 24 * 60 * 60 * 1000); // +3 days
-        document.getElementById('timestamp-shipped').textContent = formatDate(shippedDate);
-    }
-
-    if (currentStatusIndex >= 4) {
-        const deliveredDate = new Date(orderDate.getTime() + 5 * 24 * 60 * 60 * 1000); // +5 days
-        document.getElementById('timestamp-delivered').textContent = formatDate(deliveredDate);
-    }
-}
-
-// Display order items
-function displayOrderItems(itemsJson) {
-    const itemsList = document.getElementById('order-items-list');
-    
-    try {
-        const items = JSON.parse(itemsJson);
-        
-        itemsList.innerHTML = items.map(item => `
-            <div class="order-item">
-                <div class="item-info">
-                    <h5>${item.name}</h5>
-                    <p>Quantity: ${item.quantity}</p>
-                    <p>Price: ৳${item.price} each</p>
-                </div>
-                <div class="item-total">
-                    <strong>৳${item.price * item.quantity}</strong>
-                </div>
-            </div>
-        `).join('');
-    } catch (error) {
-        itemsList.innerHTML = '<p>Error loading order items</p>';
-    }
-}
-
-// Show order not found
-function showOrderNotFound() {
-    const orderStatus = document.getElementById('order-status');
-    const orderNotFound = document.getElementById('order-not-found');
-
-    orderStatus.style.display = 'none';
-    orderNotFound.style.display = 'block';
-}
-
-// Retry tracking
-function retryTracking() {
-    const orderNotFound = document.getElementById('order-not-found');
-    const orderInput = document.getElementById('order-id-input');
-
-    orderNotFound.style.display = 'none';
-    orderInput.value = '';
-    orderInput.focus();
-}
-
-// Loading and error message functions
-function showLoading() {
-    const loadingOverlay = document.getElementById('loading-overlay');
-    if (loadingOverlay) {
-        loadingOverlay.classList.add('active');
-    }
-}
-
-function hideLoading() {
-    const loadingOverlay = document.getElementById('loading-overlay');
-    if (loadingOverlay) {
-        loadingOverlay.classList.remove('active');
-    }
-}
-
-function showErrorMessage(message) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
-    errorDiv.style.cssText = `
-        position: fixed;
-        top: 100px;
-        right: 20px;
-        background: #dc3545;
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 8px;
-        z-index: 3001;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-    `;
-
-    document.body.appendChild(errorDiv);
-
-    setTimeout(() => {
-        errorDiv.style.transform = 'translateX(0)';
-    }, 100);
-
-    setTimeout(() => {
-        errorDiv.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            document.body.removeChild(errorDiv);
-        }, 300);
-    }, 3000);
-}
-
-// Export functions for global access
-window.trackOrder = trackOrder;
-window.retryTracking = retryTracking;
+// Make functions global
+window.loadOrder = loadOrder;
+window.contactSupport = contactSupport;
+window.copyOrderId = copyOrderId;
+window.printOrder = printOrder;
+window.clearSearch = clearSearch;

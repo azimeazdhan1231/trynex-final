@@ -1,13 +1,24 @@
 
-/admin/config.yml
-  Content-Type: text/yaml; charset=utf-8
-
-/admin/*
-  X-Frame-Options: DENY
-  X-Content-Type-Options: nosniff
-  X-XSS-Protection: 1; mode=block
-
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+/admin/*
+  X-Frame-Options: SAMEORIGIN
+  Content-Security-Policy: default-src 'self' 'unsafe-inline' 'unsafe-eval' *.netlify.com *.netlifycms.org unpkg.com cdnjs.cloudflare.com fonts.googleapis.com fonts.gstatic.com
+
+/api/*
+  Content-Type: application/json
+  Cache-Control: public, max-age=300
+
+/*.css
+  Cache-Control: public, max-age=31536000
+
+/*.js
+  Cache-Control: public, max-age=31536000
+
+/*.json
+  Content-Type: application/json
+  Cache-Control: public, max-age=300

@@ -1,469 +1,318 @@
-
-// Products Page JavaScript
-let allProducts = [];
+// Products page specific functionality
 let filteredProducts = [];
 let currentPage = 1;
 const productsPerPage = 12;
 let currentView = 'grid';
-let promoCodes = {};
 
-// Initialize Products Page
 document.addEventListener('DOMContentLoaded', function() {
-    if (window.location.pathname.includes('products.html')) {
-        initializeProductsPage();
-    }
+    initializeProductsPage();
 });
 
 async function initializeProductsPage() {
-    showLoading();
-    
     try {
-        await loadProductsData();
-        await loadPromoCodes();
-        setupProductsEventListeners();
-        populateCategoryFilter();
-        renderProducts();
-        loadCartFromStorage();
-        updateCartUI();
-    } catch (error) {
-        console.error('Failed to initialize products page:', error);
-        showErrorMessage('Failed to load products');
-    } finally {
-        hideLoading();
-    }
-}
-
-// Load products data
-async function loadProductsData() {
-    try {
-        // First try to load from CMS
-        await loadProductsFromCMS();
-        
-        if (allProducts.length === 0) {
-            // Fallback to static data
-            allProducts = getStaticProducts();
+        // Load data if not already loaded
+        if (products.length === 0) {
+            await loadData();
         }
-        
-        filteredProducts = [...allProducts];
-        
+
+        initializeFilters();
+        setupEventListeners();
+        processUrlParameters();
+        applyFilters();
+        setupBackToTop();
+
     } catch (error) {
-        console.error('Error loading products:', error);
-        allProducts = getStaticProducts();
-        filteredProducts = [...allProducts];
+        console.error('Error initializing products page:', error);
+        loadFallbackData();
+        initializeFilters();
+        setupEventListeners();
+        applyFilters();
     }
 }
 
-// Load promo codes
-async function loadPromoCodes() {
-    try {
-        const response = await fetch('_data/promos.json');
-        if (response.ok) {
-            promoCodes = await response.json();
-        } else {
-            // Default promo codes
-            promoCodes = {
-                "WELCOME10": { discount: 10, type: "percentage", active: true, description: "10% off for new customers" },
-                "SAVE50": { discount: 50, type: "fixed", active: true, description: "৳50 off on orders above ৳500" },
-                "FREESHIP": { discount: 80, type: "shipping", active: true, description: "Free shipping" }
-            };
-        }
-    } catch (error) {
-        console.error('Error loading promo codes:', error);
-        promoCodes = {};
-    }
-}
-
-// Setup event listeners for products page
-function setupProductsEventListeners() {
-    // Filter controls
+function initializeFilters() {
     const categoryFilter = document.getElementById('category-filter');
-    const priceFilter = document.getElementById('price-filter');
+
+    if (categoryFilter && categories.length > 0) {
+        categoryFilter.innerHTML = '<option value="">All Categories</option>' +
+            categories.map(category => `<option value="${category.name}">${category.name}</option>`).join('');
+    }
+}
+
+function setupEventListeners() {
+    // Filter change events
+    const categoryFilter = document.getElementById('category-filter');
+    const priceMin = document.getElementById('price-min');
+    const priceMax = document.getElementById('price-max');
     const sortFilter = document.getElementById('sort-filter');
-    const productSearch = document.getElementById('product-search');
-    
-    if (categoryFilter) categoryFilter.addEventListener('change', applyFilters);
-    if (priceFilter) priceFilter.addEventListener('change', applyFilters);
-    if (sortFilter) sortFilter.addEventListener('change', applySorting);
-    if (productSearch) productSearch.addEventListener('input', handleProductSearch);
-    
+    const clearFilters = document.getElementById('clear-filters');
+
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', applyFilters);
+    }
+
+    if (priceMin) {
+        priceMin.addEventListener('input', debounce(applyFilters, 500));
+    }
+
+    if (priceMax) {
+        priceMax.addEventListener('input', debounce(applyFilters, 500));
+    }
+
+    if (sortFilter) {
+        sortFilter.addEventListener('change', applyFilters);
+    }
+
+    if (clearFilters) {
+        clearFilters.addEventListener('click', clearAllFilters);
+    }
+
     // View toggle
-    const viewBtns = document.querySelectorAll('.view-btn');
-    viewBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            currentView = e.target.dataset.view;
-            renderProducts();
-        });
-    });
-    
-    // Enhanced search
-    const searchBtn = document.getElementById('search-btn');
-    const searchOverlay = document.getElementById('search-overlay');
-    const searchClose = document.getElementById('search-close');
-    const searchInput = document.getElementById('search-input');
-    
-    if (searchBtn) {
-        searchBtn.addEventListener('click', () => {
-            searchOverlay.classList.add('active');
-            searchInput.focus();
-        });
+    const gridView = document.getElementById('grid-view');
+    const listView = document.getElementById('list-view');
+
+    if (gridView) {
+        gridView.addEventListener('click', () => setView('grid'));
     }
-    
-    if (searchClose) {
-        searchClose.addEventListener('click', () => {
-            searchOverlay.classList.remove('active');
-            searchInput.value = '';
-            clearSearchSuggestions();
-        });
-    }
-    
-    if (searchInput) {
-        searchInput.addEventListener('input', handleAdvancedSearch);
-    }
-    
-    // Promo code functionality
-    const applyPromoBtn = document.getElementById('apply-promo-btn');
-    if (applyPromoBtn) {
-        applyPromoBtn.addEventListener('click', applyPromoCode);
-    }
-    
-    // Close overlay when clicking outside
-    if (searchOverlay) {
-        searchOverlay.addEventListener('click', (e) => {
-            if (e.target === searchOverlay) {
-                searchOverlay.classList.remove('active');
-            }
-        });
+
+    if (listView) {
+        listView.addEventListener('click', () => setView('list'));
     }
 }
 
-// Populate category filter
-function populateCategoryFilter() {
-    const categoryFilter = document.getElementById('category-filter');
-    if (!categoryFilter) return;
-    
-    const categories = [...new Set(allProducts.map(p => p.category))];
-    
-    categoryFilter.innerHTML = '<option value="">All Categories</option>';
-    categories.forEach(category => {
-        const option = document.createElement('option');
-        option.value = category;
-        option.textContent = category;
-        categoryFilter.appendChild(option);
-    });
-}
+function processUrlParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
 
-// Handle product search
-function handleProductSearch(e) {
-    const query = e.target.value.toLowerCase();
-    applyFilters();
-}
-
-// Handle advanced search with suggestions
-function handleAdvancedSearch(e) {
-    const query = e.target.value.toLowerCase().trim();
-    
-    if (query.length < 2) {
-        clearSearchSuggestions();
-        filteredProducts = [...allProducts];
-        renderProducts();
-        updateResultsCount();
-        return;
-    }
-    
-    // Filter products in real time
-    filteredProducts = allProducts.filter(product => {
-        const searchableText = [
-            product.name || '',
-            product.category || '',
-            product.description || '',
-            product.name_bn || ''
-        ].join(' ').toLowerCase();
-        
-        return searchableText.includes(query);
-    });
-    
-    currentPage = 1;
-    renderProducts();
-    updateResultsCount();
-    
-    const suggestions = generateSearchSuggestions(query);
-    displaySearchSuggestions(suggestions);
-}
-
-// Generate search suggestions
-function generateSearchSuggestions(query) {
-    const suggestions = [];
-    const maxSuggestions = 8;
-    
-    // Product name matches
-    allProducts.forEach(product => {
-        if (product.name.toLowerCase().includes(query) && suggestions.length < maxSuggestions) {
-            suggestions.push({
-                type: 'product',
-                text: product.name,
-                action: () => selectProduct(product)
-            });
+    // Handle category filter
+    const category = urlParams.get('category');
+    if (category) {
+        const categoryFilter = document.getElementById('category-filter');
+        if (categoryFilter) {
+            categoryFilter.value = category;
         }
-    });
-    
-    // Category matches
-    const categories = [...new Set(allProducts.map(p => p.category))];
-    categories.forEach(category => {
-        if (category.toLowerCase().includes(query) && suggestions.length < maxSuggestions) {
-            suggestions.push({
-                type: 'category',
-                text: `All ${category}`,
-                action: () => filterByCategory(category)
-            });
+    }
+
+    // Handle search query
+    const search = urlParams.get('search');
+    if (search) {
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.value = search;
         }
-    });
-    
-    // Description matches
-    allProducts.forEach(product => {
-        if (product.description.toLowerCase().includes(query) && 
-            !suggestions.some(s => s.text === product.name) && 
-            suggestions.length < maxSuggestions) {
-            suggestions.push({
-                type: 'product',
-                text: product.name,
-                subtext: product.description.substring(0, 50) + '...',
-                action: () => selectProduct(product)
-            });
-        }
-    });
-    
-    return suggestions;
-}
 
-// Display search suggestions
-function displaySearchSuggestions(suggestions) {
-    const suggestionsContainer = document.getElementById('search-suggestions');
-    if (!suggestionsContainer) return;
-    
-    if (suggestions.length === 0) {
-        suggestionsContainer.style.display = 'none';
-        return;
+        // Update page title
+        document.title = `Search: ${search} - TryneX`;
     }
-    
-    suggestionsContainer.innerHTML = suggestions.map((suggestion, index) => `
-        <div class="suggestion-item" onclick="selectSuggestion('${suggestion.text.replace(/'/g, "\\'")}', '${suggestion.type}')">
-            <div class="suggestion-main">${suggestion.text}</div>
-            ${suggestion.subtext ? `<div class="suggestion-sub">${suggestion.subtext}</div>` : ''}
-        </div>
-    `).join('');
-    
-    suggestionsContainer.classList.add('show');
-    
-    // Add click outside to close
-    setTimeout(() => {
-        document.addEventListener('click', handleOutsideClick);
-    }, 100);
-}
 
-// Handle clicks outside search suggestions
-function handleOutsideClick(e) {
-    const searchContainer = document.querySelector('.search-container');
-    const suggestionsContainer = document.getElementById('search-suggestions');
-    
-    if (searchContainer && !searchContainer.contains(e.target)) {
-        clearSearchSuggestions();
-        document.removeEventListener('click', handleOutsideClick);
+    // Handle specific product
+    const productId = urlParams.get('product');
+    if (productId) {
+        highlightProduct(parseInt(productId));
     }
 }
 
-// Clear search suggestions
-function clearSearchSuggestions() {
-    const suggestionsContainer = document.getElementById('search-suggestions');
-    if (suggestionsContainer) {
-        suggestionsContainer.classList.remove('show');
-        suggestionsContainer.innerHTML = '';
-    }
-}
-
-// Select suggestion
-function selectSuggestion(text, type) {
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) {
-        searchInput.value = text;
-    }
-    
-    if (type === 'category') {
-        const category = text.replace('All ', '');
-        filterByCategory(category);
-    } else {
-        // Search for the product
-        filteredProducts = allProducts.filter(p => 
-            p.name.toLowerCase().includes(text.toLowerCase())
-        );
-        currentPage = 1;
-        renderProducts();
-        updateResultsCount();
-    }
-    
-    clearSearchSuggestions();
-    const searchOverlay = document.getElementById('search-overlay');
-    if (searchOverlay) {
-        searchOverlay.classList.remove('active');
-    }
-}
-
-// Apply filters
 function applyFilters() {
     const categoryFilter = document.getElementById('category-filter');
-    const priceFilter = document.getElementById('price-filter');
-    const productSearch = document.getElementById('product-search');
-    
+    const priceMin = document.getElementById('price-min');
+    const priceMax = document.getElementById('price-max');
+    const sortFilter = document.getElementById('sort-filter');
+    const searchInput = document.getElementById('search-input');
+
+    // Get filter values
     const selectedCategory = categoryFilter ? categoryFilter.value : '';
-    const selectedPriceRange = priceFilter ? priceFilter.value : '';
-    const searchQuery = productSearch ? productSearch.value.toLowerCase() : '';
-    
-    filteredProducts = allProducts.filter(product => {
+    const minPrice = priceMin ? parseFloat(priceMin.value) || 0 : 0;
+    const maxPrice = priceMax ? parseFloat(priceMax.value) || Infinity : Infinity;
+    const sortBy = sortFilter ? sortFilter.value : 'name';
+    const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+    // Filter products
+    filteredProducts = products.filter(product => {
         // Category filter
         if (selectedCategory && product.category !== selectedCategory) {
             return false;
         }
-        
+
         // Price filter
-        if (selectedPriceRange) {
-            const [min, max] = selectedPriceRange.split('-').map(Number);
-            if (product.price < min || (max && product.price > max)) {
-                return false;
-            }
+        if (product.price < minPrice || product.price > maxPrice) {
+            return false;
         }
-        
+
         // Search filter
         if (searchQuery) {
             const searchFields = [
-                product.name.toLowerCase(),
-                product.category.toLowerCase(),
-                product.description.toLowerCase()
-            ];
-            
-            if (!searchFields.some(field => field.includes(searchQuery))) {
+                product.name,
+                product.description,
+                product.category,
+                product.name_bn || '',
+                product.description_bn || ''
+            ].join(' ').toLowerCase();
+
+            const searchWords = searchQuery.split(' ');
+            const matches = searchWords.every(word => searchFields.includes(word));
+
+            if (!matches) {
                 return false;
             }
         }
-        
+
         return true;
     });
-    
+
+    // Sort products
+    sortProducts(filteredProducts, sortBy);
+
+    // Reset to first page
     currentPage = 1;
-    applySorting();
+
+    // Render products
     renderProducts();
+    renderPagination();
     updateResultsCount();
 }
 
-// Apply sorting
-function applySorting() {
-    const sortFilter = document.getElementById('sort-filter');
-    const sortBy = sortFilter ? sortFilter.value : 'newest';
-    
+function sortProducts(products, sortBy) {
     switch (sortBy) {
-        case 'price-low':
-            filteredProducts.sort((a, b) => a.price - b.price);
-            break;
-        case 'price-high':
-            filteredProducts.sort((a, b) => b.price - a.price);
-            break;
         case 'name':
-            filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+            products.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+        case 'name-desc':
+            products.sort((a, b) => b.name.localeCompare(a.name));
+            break;
+        case 'price':
+            products.sort((a, b) => a.price - b.price);
+            break;
+        case 'price-desc':
+            products.sort((a, b) => b.price - a.price);
+            break;
+        case 'rating':
+            products.sort((a, b) => (b.rating || 0) - (a.rating || 0));
             break;
         case 'newest':
-        default:
-            filteredProducts.sort((a, b) => b.id - a.id);
+            products.sort((a, b) => (b.id || 0) - (a.id || 0));
             break;
     }
-    
-    renderProducts();
 }
 
-// Render products
 function renderProducts() {
     const productsGrid = document.getElementById('products-grid');
+    const noResults = document.getElementById('no-results');
+
     if (!productsGrid) return;
-    
+
+    // Calculate pagination
     const startIndex = (currentPage - 1) * productsPerPage;
     const endIndex = startIndex + productsPerPage;
-    const productsToShow = filteredProducts.slice(startIndex, endIndex);
-    
-    // Update grid class based on view
-    productsGrid.className = `products-grid ${currentView}-view`;
-    
-    if (productsToShow.length === 0) {
-        productsGrid.innerHTML = `
-            <div class="no-products">
-                <i class="fas fa-search"></i>
-                <h3>No Products Found</h3>
-                <p>Try adjusting your filters or search terms</p>
-            </div>
-        `;
+    const pageProducts = filteredProducts.slice(startIndex, endIndex);
+
+    if (pageProducts.length === 0) {
+        productsGrid.style.display = 'none';
+        if (noResults) noResults.style.display = 'block';
         return;
     }
-    
-    productsGrid.innerHTML = productsToShow.map(product => `
-        <div class="product-card fade-in" data-category="${product.category}">
+
+    productsGrid.style.display = 'grid';
+    if (noResults) noResults.style.display = 'none';
+
+    productsGrid.innerHTML = pageProducts.map(product => `
+        <div class="product-card ${currentView === 'list' ? 'list-view' : ''}" data-id="${product.id}">
             <div class="product-image">
-                <img src="${product.image}" alt="${product.name}" loading="lazy" 
-                     onerror="this.src='https://via.placeholder.com/300x300/d4af37/000000?text=${encodeURIComponent(product.name)}'">
-                ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
-                ${product.featured ? `<div class="product-badge featured">Featured</div>` : ''}
+                <img src="${product.image}" alt="${product.name}" loading="lazy">
+                ${product.originalPrice > product.price ? '<span class="product-badge">Sale</span>' : ''}
+                ${!product.inStock ? '<span class="product-badge" style="background: #dc3545;">Out of Stock</span>' : ''}
             </div>
             <div class="product-info">
                 <div class="product-category">${product.category}</div>
                 <h3 class="product-name">${product.name}</h3>
                 <p class="product-description">${product.description}</p>
-                <div class="product-price">৳${product.price}</div>
+                ${product.rating ? `
+                    <div class="product-rating">
+                        ${generateStars(product.rating)}
+                        <span>(${product.rating})</span>
+                    </div>
+                ` : ''}
+                <div class="product-price">
+                    ৳${product.price}
+                    ${product.originalPrice > product.price ? `<span class="original-price">৳${product.originalPrice}</span>` : ''}
+                </div>
                 <div class="product-actions">
-                    <button class="add-to-cart-btn" onclick="addToCart(${product.id})">
-                        <i class="fas fa-cart-plus"></i>
-                        Add to Cart
+                    <button class="add-to-cart-btn" onclick="addToCart(${product.id})" ${!product.inStock ? 'disabled' : ''}>
+                        <i class="fas fa-shopping-cart"></i>
+                        ${product.inStock ? 'Add to Cart' : 'Out of Stock'}
                     </button>
                     <button class="whatsapp-btn" onclick="orderViaWhatsApp(${product.id})">
                         <i class="fab fa-whatsapp"></i>
-                        Order
+                        WhatsApp
                     </button>
                 </div>
             </div>
         </div>
     `).join('');
-    
-    renderPagination();
+
+    // Add animation to product cards
+    const productCards = productsGrid.querySelectorAll('.product-card');
+    productCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 50);
+    });
 }
 
-// Render pagination
+function generateStars(rating) {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    let stars = '';
+
+    for (let i = 0; i < fullStars; i++) {
+        stars += '<i class="fas fa-star"></i>';
+    }
+
+    if (hasHalfStar) {
+        stars += '<i class="fas fa-star-half-alt"></i>';
+    }
+
+    const emptyStars = 5 - Math.ceil(rating);
+    for (let i = 0; i < emptyStars; i++) {
+        stars += '<i class="far fa-star"></i>';
+    }
+
+    return stars;
+}
+
 function renderPagination() {
     const pagination = document.getElementById('pagination');
     if (!pagination) return;
-    
+
     const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-    
+
     if (totalPages <= 1) {
-        pagination.innerHTML = '';
+        pagination.style.display = 'none';
         return;
     }
-    
+
+    pagination.style.display = 'flex';
+
     let paginationHTML = '';
-    
+
     // Previous button
     paginationHTML += `
         <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
             <i class="fas fa-chevron-left"></i>
         </button>
     `;
-    
+
     // Page numbers
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, currentPage + 2);
-    
-    if (startPage > 1) {
-        paginationHTML += `<button onclick="changePage(1)">1</button>`;
-        if (startPage > 2) {
-            paginationHTML += `<span>...</span>`;
-        }
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage < maxVisiblePages - 1) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
         paginationHTML += `
             <button onclick="changePage(${i})" ${i === currentPage ? 'class="active"' : ''}>
@@ -471,176 +320,171 @@ function renderPagination() {
             </button>
         `;
     }
-    
-    if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-            paginationHTML += `<span>...</span>`;
-        }
-        paginationHTML += `<button onclick="changePage(${totalPages})">${totalPages}</button>`;
-    }
-    
+
     // Next button
     paginationHTML += `
         <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
             <i class="fas fa-chevron-right"></i>
         </button>
     `;
-    
+
     pagination.innerHTML = paginationHTML;
 }
 
-// Change page
 function changePage(page) {
     const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-    
+
     if (page < 1 || page > totalPages) return;
-    
+
     currentPage = page;
     renderProducts();
-    
+    renderPagination();
+
     // Scroll to top of products
-    document.getElementById('products-grid').scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-    });
+    const productsGrid = document.getElementById('products-grid');
+    if (productsGrid) {
+        productsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
-// Update results count
 function updateResultsCount() {
     const resultsCount = document.getElementById('results-count');
-    if (resultsCount) {
-        const count = filteredProducts.length;
-        const productText = count === 1 ? 'product' : 'products';
-        resultsCount.textContent = `${count} ${productText} found`;
+    if (!resultsCount) return;
+
+    const startIndex = (currentPage - 1) * productsPerPage + 1;
+    const endIndex = Math.min(currentPage * productsPerPage, filteredProducts.length);
+
+    if (filteredProducts.length === 0) {
+        resultsCount.textContent = 'No products found';
+    } else {
+        resultsCount.textContent = `Showing ${startIndex}-${endIndex} of ${filteredProducts.length} products`;
     }
 }
 
-// Filter by category (for category buttons)
-function filterByCategory(category) {
-    const categoryFilter = document.getElementById('category-filter');
-    if (categoryFilter) {
-        categoryFilter.value = category;
+function setView(view) {
+    currentView = view;
+
+    const gridViewBtn = document.getElementById('grid-view');
+    const listViewBtn = document.getElementById('list-view');
+    const productsGrid = document.getElementById('products-grid');
+
+    if (gridViewBtn && listViewBtn && productsGrid) {
+        gridViewBtn.classList.toggle('active', view === 'grid');
+        listViewBtn.classList.toggle('active', view === 'list');
+
+        productsGrid.classList.toggle('list-view', view === 'list');
+
+        // Re-render products with new view
+        renderProducts();
     }
+
+    // Save preference
+    localStorage.setItem('productsView', view);
+}
+
+function clearAllFilters() {
+    const categoryFilter = document.getElementById('category-filter');
+    const priceMin = document.getElementById('price-min');
+    const priceMax = document.getElementById('price-max');
+    const sortFilter = document.getElementById('sort-filter');
+    const searchInput = document.getElementById('search-input');
+
+    if (categoryFilter) categoryFilter.value = '';
+    if (priceMin) priceMin.value = '';
+    if (priceMax) priceMax.value = '';
+    if (sortFilter) sortFilter.value = 'name';
+    if (searchInput) searchInput.value = '';
+
+    // Clear URL parameters
+    const url = new URL(window.location);
+    url.search = '';
+    window.history.replaceState({}, '', url);
+
     applyFilters();
 }
 
-// Apply promo code
-function applyPromoCode() {
-    const promoInput = document.getElementById('promo-code');
-    const promoStatus = document.getElementById('promo-status');
-    
-    if (!promoInput || !promoStatus) return;
-    
-    const code = promoInput.value.trim().toUpperCase();
-    
-    if (!code) {
-        showPromoStatus('Please enter a promo code', 'error');
-        return;
-    }
-    
-    // Check if promo code exists and is valid
-    if (!promoCodes[code] || !promoCodes[code].active) {
-        showPromoStatus('Invalid or expired promo code', 'error');
-        return;
-    }
-    
-    const promo = promoCodes[code];
-    
-    // Check minimum order requirement
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    if (promo.min_order && subtotal < promo.min_order) {
-        showPromoStatus(`Minimum order of ৳${promo.min_order} required`, 'error');
-        return;
-    }
-    
-    // Check expiry date
-    if (promo.expiry) {
-        const expiryDate = new Date(promo.expiry);
-        const now = new Date();
-        if (now > expiryDate) {
-            showPromoStatus('This promo code has expired', 'error');
-            return;
+function highlightProduct(productId) {
+    // Ensure the product is visible and highlighted
+    setTimeout(() => {
+        const productCard = document.querySelector(`[data-id="${productId}"]`);
+        if (productCard) {
+            productCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            productCard.style.animation = 'highlight 2s ease-in-out';
         }
+    }, 500);
+}
+
+function setupBackToTop() {
+    const backToTop = document.getElementById('back-to-top');
+
+    if (backToTop) {
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
     }
-    
-    // Apply the promo code
-    cart.promoCode = {
-        code: code,
-        discount: promo.discount,
-        type: promo.type,
-        description: promo.description
+}
+
+// Utility function for debouncing
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
     };
-    
-    showPromoStatus(`✅ Promo applied: ${promo.description}`, 'success');
-    updateCartUI();
-    saveCartToStorage();
-    
-    // Clear the input
-    promoInput.value = '';
 }
 
-// Initialize promo codes if not loaded
-if (!window.cart) {
-    window.cart = [];
-}
-if (!window.cart.promoCode) {
-    window.cart.promoCode = null;
-}
-
-// Show promo status
-function showPromoStatus(message, type) {
-    const promoStatus = document.getElementById('promo-status');
-    if (promoStatus) {
-        promoStatus.textContent = message;
-        promoStatus.className = `promo-status ${type}`;
-        
-        setTimeout(() => {
-            promoStatus.textContent = '';
-            promoStatus.className = 'promo-status';
-        }, 3000);
+// Load saved view preference
+window.addEventListener('load', () => {
+    const savedView = localStorage.getItem('productsView');
+    if (savedView && ['grid', 'list'].includes(savedView)) {
+        setView(savedView);
     }
-}
+});
 
-// Calculate delivery fee based on location
-function calculateDeliveryFee() {
-    const district = document.getElementById('customer-district');
-    const thana = document.getElementById('customer-thana');
-    const deliveryFeeElements = document.querySelectorAll('#delivery-fee, #checkout-delivery-fee');
-    
-    if (!district || !thana) return 80; // Default fee
-    
-    let fee = 80; // Default for Dhaka metro
-    
-    const districtValue = district.value;
-    const thanaValue = thana.value;
-    
-    // Dhaka metro areas (lower fee)
-    const dhakaMetroThanas = [
-        'Dhanmondi', 'Gulshan', 'Banani', 'Uttara', 'Mirpur', 
-        'Mohammadpur', 'Old Dhaka', 'Wari', 'Ramna', 'Tejgaon'
-    ];
-    
-    if (districtValue === 'Dhaka' && dhakaMetroThanas.includes(thanaValue)) {
-        fee = 80;
-    } else if (districtValue === 'Dhaka') {
-        fee = 120; // Dhaka but outside metro
-    } else {
-        fee = 150; // Outside Dhaka
-    }
-    
-    // Update delivery fee display
-    deliveryFeeElements.forEach(element => {
-        if (element) element.textContent = fee;
-    });
-    
-    // Update cart total
-    updateCartUI();
-    
-    return fee;
-}
-
-// Export functions for global access
+// Make functions global
 window.changePage = changePage;
-window.selectSuggestion = selectSuggestion;
-window.applyPromoCode = applyPromoCode;
-window.calculateDeliveryFee = calculateDeliveryFee;
+
+// Add highlight animation CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes highlight {
+        0%, 100% { transform: scale(1); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3); }
+    }
+
+    .original-price {
+        text-decoration: line-through;
+        color: var(--text-light);
+        font-size: 0.9em;
+        margin-left: 0.5rem;
+    }
+
+    .product-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--primary-gold);
+    }
+
+    .product-rating span {
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+`;
+document.head.appendChild(style);
