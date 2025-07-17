@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TryneX - Premium Gifts & Lifestyle Products</title>
+    <meta name="description" content="Discover premium gifts, custom mugs, t-shirts, and luxury hampers at TryneX. Quality products with fast delivery across Bangladesh.">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Netlify CMS -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <h1>TryneX</h1>
+                    <span class="logo-tagline">Premium Lifestyle</span>
+                </div>
+                
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="#home" class="nav-link">Home</a></li>
+                    <li><a href="#shop" class="nav-link">Shop</a></li>
+                    <li><a href="#categories" class="nav-link">Categories</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+                
+                <div class="nav-actions">
+                    <button class="search-btn" id="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="cart-btn" id="cart-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cart-count">0</span>
+                    </button>
+                    <button class="hamburger" id="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Search Bar -->
+        <div class="search-overlay" id="search-overlay">
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search products or categories...">
+                <button class="search-close" id="search-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-slider">
+            <div class="slide active">
+                <div class="slide-content">
+                    <div class="hero-text">
+                        <h1 class="hero-title">Premium Gifts & Lifestyle Products</h1>
+                        <p class="hero-subtitle">Discover our curated collection of premium mugs, custom t-shirts, and luxury gift hampers</p>
+                        <button class="cta-btn" onclick="scrollToSection('shop')">
+                            Shop Now
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div class="hero-image">
+                        <img src="https://pixabay.com/get/g074e52b952ac9ac7c0bad33bfffeb5c6247955618fb9adf9a6f9d2ffc9c3a5bf710dd21d999bfab92ab35b3363c544675c7d8d0176b3b2ecb29ee7823c9bf7db_1280.jpg" alt="Premium Gift Hamper" loading="lazy">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="slide">
+                <div class="slide-content">
+                    <div class="hero-text">
+                        <h1 class="hero-title">Custom Mugs & Drinkware</h1>
+                        <p class="hero-subtitle">Premium ceramic mugs starting from ৫৫০৳. Perfect for gifts or personal use</p>
+                        <button class="cta-btn" onclick="filterByCategory('Mugs')">
+                            View Mugs
+                            <i class="fas fa-coffee"></i>
+                        </button>
+                    </div>
+                    <div class="hero-image">
+                        <img src="https://pixabay.com/get/g875e9bed23cfd7372aedb93d937a7b847df753b50d255397f8190d05a5b16aab4fe3bf8e8df8d0c4e8ec4eb22975efb774dde2434dbe85e6bbd57f3c061421f9_1280.jpg" alt="Premium Ceramic Mug" loading="lazy">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="slide">
+                <div class="slide-content">
+                    <div class="hero-text">
+                        <h1 class="hero-title">Comfortable T-Shirts</h1>
+                        <p class="hero-subtitle">High-quality, comfortable t-shirts for everyday wear. Starting from ৫৫০৳</p>
+                        <button class="cta-btn" onclick="filterByCategory('T-Shirts')">
+                            Shop T-Shirts
+                            <i class="fas fa-tshirt"></i>
+                        </button>
+                    </div>
+                    <div class="hero-image">
+                        <img src="https://pixabay.com/get/g5523718b6c0dbd5eaee1a4fe4dc63ea8daf223f3c76d2be78f925c5a74b78ebceae08303b0405b3090c3e84db866ccfc78fe6f987bf5446d8b8d34d73cd4c775_1280.jpg" alt="Comfortable T-Shirt" loading="lazy">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide-controls">
+            <button class="slide-btn prev" onclick="changeSlide(-1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="slide-btn next" onclick="changeSlide(1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <div class="slide-indicators">
+            <span class="indicator active" onclick="goToSlide(1)"></span>
+            <span class="indicator" onclick="goToSlide(2)"></span>
+            <span class="indicator" onclick="goToSlide(3)"></span>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories" id="categories">
+        <div class="container">
+            <h2 class="section-title">Shop by Category</h2>
+            <div class="category-filter">
+                <select id="category-select">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+            <div class="category-grid" id="category-grid">
+                <!-- Categories will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products" id="shop">
+        <div class="container">
+            <h2 class="section-title">Featured Products</h2>
+            <div class="products-grid" id="products-grid">
+                <!-- Products will be loaded dynamically -->
+            </div>
+            <div class="load-more-container">
+                <button class="load-more-btn" id="load-more-btn">Load More Products</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof Section -->
+    <section class="social-proof">
+        <div class="container">
+            <h2 class="section-title">What Our Customers Say</h2>
+            <div class="reviews-grid">
+                <div class="review-card">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>"Amazing quality! The mug I ordered exceeded my expectations. Fast delivery too!"</p>
+                    <div class="reviewer">
+                        <strong>- John D.</strong>
+                        <span>Verified Buyer</span>
+                    </div>
+                </div>
+                
+                <div class="review-card">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>"Perfect gift hamper for my parents. They loved every item in it!"</p>
+                    <div class="reviewer">
+                        <strong>- Sarah M.</strong>
+                        <span>Verified Buyer</span>
+                    </div>
+                </div>
+                
+                <div class="review-card">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>"Great customer service and premium quality products. Highly recommended!"</p>
+                    <div class="reviewer">
+                        <strong>- Ahmed R.</strong>
+                        <span>Verified Buyer</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="trust-badges">
+                <div class="badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Secure Payment</span>
+                </div>
+                <div class="badge">
+                    <i class="fas fa-truck"></i>
+                    <span>Fast Delivery</span>
+                </div>
+                <div class="badge">
+                    <i class="fas fa-undo"></i>
+                    <span>Easy Returns</span>
+                </div>
+                <div class="badge">
+                    <i class="fas fa-headset"></i>
+                    <span>24/7 Support</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2>Stay Updated with Our Latest Offers</h2>
+                <p>Subscribe to our newsletter and be the first to know about new products and exclusive deals</p>
+                <form class="newsletter-form" id="newsletter-form">
+                    <input type="email" id="email-input" placeholder="Enter your email address" required>
+                    <button type="submit">
+                        Subscribe
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+                <div class="newsletter-success" id="newsletter-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Thank you for subscribing!</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <h2 class="section-title">Get in Touch</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>Contact Information</h3>
+                    <div class="contact-item">
+                        <i class="fab fa-whatsapp"></i>
+                        <div>
+                            <h4>WhatsApp</h4>
+                            <a href="https://wa.me/01747292277" target="_blank">01747292277</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <div>
+                            <h4>Bkash/Nagad</h4>
+                            <span>01747292277</span>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <h4>Business Hours</h4>
+                            <span>9:00 AM - 10:00 PM (Daily)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <form class="contact-form" id="contact-form">
+                    <h3>Send us a Message</h3>
+                    <div class="form-group">
+                        <input type="text" id="name" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="contact-email" placeholder="Your Email" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="message" placeholder="Your Message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit">
+                        Send Message
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>TryneX</h3>
+                    <p>Premium gifts and lifestyle products for every occasion. Quality guaranteed, fast delivery across Bangladesh.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://wa.me/01747292277" class="social-link" target="_blank">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#shop">Shop</a></li>
+                        <li><a href="#categories">Categories</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Categories</h4>
+                    <ul>
+                        <li><a href="#" onclick="filterByCategory('Mugs')">Mugs</a></li>
+                        <li><a href="#" onclick="filterByCategory('T-Shirts')">T-Shirts</a></li>
+                        <li><a href="#" onclick="filterByCategory('Gift for Him')">Gift for Him</a></li>
+                        <li><a href="#" onclick="filterByCategory('Gift for Her')">Gift for Her</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Customer Care</h4>
+                    <ul>
+                        <li><a href="#contact">Contact Us</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Return Policy</a></li>
+                        <li><a href="#">FAQ</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 TryneX. All rights reserved. | Designed for premium lifestyle</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cart-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Shopping Cart</h3>
+                <button class="modal-close" onclick="closeModal('cart-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="cart-items" id="cart-items">
+                    <!-- Cart items will be populated here -->
+                </div>
+                
+                <div class="cart-empty" id="cart-empty" style="display: none;">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>Your cart is empty</p>
+                    <button class="cta-btn" onclick="closeModal('cart-modal')">Continue Shopping</button>
+                </div>
+            </div>
+            
+            <div class="modal-footer" id="cart-footer">
+                <div class="cart-total">
+                    <h4>Total: ৳<span id="cart-total">0</span></h4>
+                </div>
+                <button class="checkout-btn" id="checkout-btn" onclick="proceedToCheckout()">
+                    Proceed to Checkout
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal" id="checkout-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Checkout - Order Confirmation</h3>
+                <button class="modal-close" onclick="closeModal('checkout-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="checkout-steps">
+                    <div class="step active" id="step-1">
+                        <h4>Step 1: Payment Advance</h4>
+                        <p>Please pay 100 BDT advance via Bkash or Nagad to confirm your order</p>
+                        <div class="payment-info">
+                            <div class="payment-methods-grid">
+                                <div class="payment-method-card">
+                                    <div class="payment-icon bkash">bKash</div>
+                                    <div class="payment-number">01747-292277</div>
+                                </div>
+                                <div class="payment-method-card">
+                                    <div class="payment-icon nagad">Nagad</div>
+                                    <div class="payment-number">01747-292277</div>
+                                </div>
+                                <div class="payment-method-card">
+                                    <div class="payment-icon upay">Upay</div>
+                                    <div class="payment-number">01747-292277</div>
+                                </div>
+                            </div>
+                            <div class="payment-instructions">
+                                <ol>
+                                    <li>Send 100 BDT to the number above</li>
+                                    <li>Copy the transaction ID</li>
+                                    <li>Paste it in the field below</li>
+                                    <li>Click "Verify Payment" to confirm</li>
+                                </ol>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transaction-id">Transaction ID:</label>
+                            <input type="text" id="transaction-id" placeholder="Enter transaction ID" required>
+                        </div>
+                        
+                        <button class="verify-btn" onclick="verifyPayment()">
+                            Verify Payment
+                            <i class="fas fa-check-circle"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="step" id="step-2">
+                        <h4>Step 2: Order Details</h4>
+                        <div class="customer-form">
+                            <div class="form-group">
+                                <label for="customer-name">Full Name:</label>
+                                <input type="text" id="customer-name" placeholder="Enter your full name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-phone">Phone Number:</label>
+                                <input type="tel" id="customer-phone" placeholder="Enter your phone number" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-district">District:</label>
+                                <select id="customer-district" required onchange="updateThanas()">
+                                    <option value="">Select District</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-thana">Thana/Upazila:</label>
+                                <select id="customer-thana" required>
+                                    <option value="">Select Thana</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-address">Detailed Address:</label>
+                                <textarea id="customer-address" placeholder="House/Road/Area details" rows="2" required></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="order-summary">
+                            <h5>Order Summary:</h5>
+                            <div id="checkout-items"></div>
+                            <div class="order-total">
+                                <p><strong>Total: ৳<span id="checkout-total">0</span></strong></p>
+                                <p class="advance-note">Advance Paid: ৳100</p>
+                                <p class="remaining">Remaining: ৳<span id="remaining-amount">0</span></p>
+                            </div>
+                        </div>
+                        
+                        <button class="place-order-btn" onclick="placeOrder()">
+                            Place Order via WhatsApp
+                            <i class="fab fa-whatsapp"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Success Notification -->
+    <div class="notification-popup" id="success-notification">
+        <div class="notification-content">
+            <div class="notification-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="notification-text">
+                <h4>Order Placed Successfully!</h4>
+                <p>Your order has been sent via WhatsApp. We'll contact you soon to confirm delivery details.</p>
+            </div>
+            <button class="notification-close" onclick="closeNotification()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+    
+    <!-- Netlify Identity -->
+    <script>
+        if (window.netlifyIdentity) {
+            window.netlifyIdentity.on("init", user => {
+                if (!user) {
+                    window.netlifyIdentity.on("login", () => {
+                        document.location.href = "/admin/";
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

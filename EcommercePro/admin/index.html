@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TryneX Admin Panel</title>
+    <link rel="stylesheet" href="https://unpkg.com/netlify-cms@^2.0.0/dist/cms.css" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .nc-app {
+            background: linear-gradient(135deg, #d4af37 0%, #f4e676 100%);
+        }
+        
+        .nc-app-header {
+            background: #1a1a1a;
+            color: #d4af37;
+        }
+        
+        .nc-sidebar {
+            background: #2d2d2d;
+        }
+        
+        .nc-sidebar-nav-item {
+            color: #ffffff;
+        }
+        
+        .nc-sidebar-nav-item:hover {
+            background: #d4af37;
+            color: #1a1a1a;
+        }
+        
+        .nc-main {
+            background: #ffffff;
+        }
+        
+        .nc-button-primary {
+            background: #d4af37;
+            border-color: #d4af37;
+        }
+        
+        .nc-button-primary:hover {
+            background: #f4e676;
+            border-color: #f4e676;
+        }
+    </style>
+</head>
+<body>
+    <!-- Include the script that builds the page and powers Netlify CMS -->
+    <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
+    
+    <script>
+        // Custom preview components for better editing experience
+        CMS.registerPreviewTemplate('products', ({ entry, widgetFor, widgetsFor }) => {
+            const name = entry.getIn(['data', 'name']);
+            const price = entry.getIn(['data', 'price']);
+            const category = entry.getIn(['data', 'category']);
+            const image = entry.getIn(['data', 'image']);
+            const description = entry.getIn(['data', 'description']);
+            
+            return `
+                <div style="
+                    background: white;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.1);
+                    max-width: 300px;
+                    margin: 20px;
+                ">
+                    <img src="${image}" alt="${name}" style="
+                        width: 100%;
+                        height: 200px;
+                        object-fit: cover;
+                    ">
+                    <div style="padding: 20px;">
+                        <div style="color: #d4af37; font-size: 14px; margin-bottom: 8px;">${category}</div>
+                        <h3 style="margin: 0 0 8px 0; color: #1a1a1a;">${name}</h3>
+                        <p style="color: #666; font-size: 14px; margin-bottom: 12px;">${description}</p>
+                        <div style="font-size: 20px; font-weight: bold; color: #d4af37;">৳${price}</div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        CMS.registerPreviewTemplate('categories', ({ entry }) => {
+            const name = entry.getIn(['data', 'name']);
+            const name_bn = entry.getIn(['data', 'name_bn']);
+            const icon = entry.getIn(['data', 'icon']);
+            const description = entry.getIn(['data', 'description']);
+            
+            return `
+                <div style="
+                    background: white;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.1);
+                    max-width: 250px;
+                    margin: 20px;
+                ">
+                    <div style="
+                        height: 120px;
+                        background: linear-gradient(135deg, #d4af37 0%, #f4e676 100%);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 48px;
+                        color: white;
+                    ">
+                        <i class="${icon}"></i>
+                    </div>
+                    <div style="padding: 20px;">
+                        <h3 style="margin: 0 0 8px 0; color: #1a1a1a;">${name}</h3>
+                        <p style="color: #666; font-size: 12px; margin-bottom: 8px;">${name_bn}</p>
+                        <p style="color: #666; font-size: 14px;">${description}</p>
+                    </div>
+                </div>
+            `;
+        });
+        
+        // Custom editor components
+        CMS.registerEditorComponent({
+            id: "price",
+            label: "Price Display",
+            fields: [
+                { name: "amount", label: "Amount", widget: "number" },
+                { name: "currency", label: "Currency", widget: "select", options: ["৳", "$", "€"] }
+            ],
+            pattern: /^{{price (\d+) (\S+)}}$/,
+            fromBlock: function(match) {
+                return {
+                    amount: match[1],
+                    currency: match[2]
+                };
+            },
+            toBlock: function(obj) {
+                return `{{price ${obj.amount} ${obj.currency}}}`;
+            },
+            toPreview: function(obj) {
+                return `<span style="color: #d4af37; font-weight: bold; font-size: 18px;">${obj.currency}${obj.amount}</span>`;
+            }
+        });
+    </script>
+</body>
+</html>
