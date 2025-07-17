@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - TryneX</title>
+    <meta name="description" content="Browse all premium products at TryneX. Quality gifts, custom mugs, t-shirts, and luxury hampers with fast delivery.">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html">
+                        <h1>TryneX</h1>
+                        <span class="logo-tagline">Premium Lifestyle</span>
+                    </a>
+                </div>
+                
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="products.html" class="nav-link active">Products</a></li>
+                    <li><a href="index.html#categories" class="nav-link">Categories</a></li>
+                    <li><a href="track-order.html" class="nav-link">Track Order</a></li>
+                    <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+                </ul>
+                
+                <div class="nav-actions">
+                    <button class="search-btn" id="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="cart-btn" id="cart-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cart-count">0</span>
+                    </button>
+                    <button class="hamburger" id="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Advanced Search Bar -->
+        <div class="search-overlay" id="search-overlay">
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search products...">
+                <button class="search-close" id="search-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Products Page Content -->
+    <main class="products-page">
+        <section class="page-header">
+            <div class="container">
+                <h1>All Products</h1>
+                <p>Browse our complete collection of premium gifts and lifestyle products</p>
+            </div>
+        </section>
+
+        <!-- Product Filters -->
+        <section class="product-filters">
+            <div class="container">
+                <div class="filter-controls">
+                    <select id="category-select">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="price-filter">
+                        <option value="">All Prices</option>
+                        <option value="0-500">৳0 - ৳500</option>
+                        <option value="500-1000">৳500 - ৳1000</option>
+                        <option value="1000-2000">৳1000 - ৳2000</option>
+                        <option value="2000+">৳2000+</option>
+                    </select>
+                    <select id="sort-filter">
+                        <option value="name">Sort by Name</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="newest">Newest First</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Products Grid -->
+        <section class="products-section">
+            <div class="container">
+                <div class="products-grid" id="products-grid">
+                    <!-- Products will be loaded here -->
+                </div>
+
+                <div class="load-more-container">
+                    <button class="load-more-btn" id="load-more-btn">Load More Products</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Cart Modal (reused from main site) -->
+    <div class="modal" id="cart-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Shopping Cart</h3>
+                <button class="modal-close" onclick="closeModal('cart-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="cart-items" id="cart-items">
+                    <!-- Cart items will be populated here -->
+                </div>
+                
+                <div class="cart-empty" id="cart-empty" style="display: none;">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>Your cart is empty</p>
+                    <button class="cta-btn" onclick="closeModal('cart-modal')">Continue Shopping</button>
+                </div>
+                
+                <!-- Promo Code Section -->
+                <div class="promo-section" id="promo-section">
+                    <div class="promo-input-container">
+                        <input type="text" id="promo-code" placeholder="Enter promo code (e.g., WELCOME10)">
+                        <button class="apply-promo-btn" id="apply-promo-btn" onclick="applyPromoCode()">Apply</button>
+                    </div>
+                    <div class="promo-status" id="promo-status"></div>
+                </div>
+                
+                <!-- Special Instructions -->
+                <div class="instructions-section">
+                    <label for="special-instructions">Any Special Instructions:</label>
+                    <textarea id="special-instructions" placeholder="Enter any special requests or instructions for your order..." rows="3"></textarea>
+                </div>
+            </div>
+            
+            <div class="modal-footer" id="cart-footer">
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span>৳<span id="cart-subtotal">0</span></span>
+                    </div>
+                    <div class="summary-row promo-discount" id="promo-discount" style="display: none;">
+                        <span>Discount:</span>
+                        <span class="discount-amount">-৳<span id="discount-amount">0</span></span>
+                    </div>
+                    <div class="summary-row delivery-fee">
+                        <span>Delivery Fee:</span>
+                        <span>৳<span id="delivery-fee">80</span></span>
+                    </div>
+                    <div class="summary-row total">
+                        <span><strong>Total:</strong></span>
+                        <span><strong>৳<span id="cart-total">0</span></strong></span>
+                    </div>
+                </div>
+                <button class="checkout-btn" id="checkout-btn" onclick="proceedToCheckout()">
+                    Proceed to Checkout
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Checkout Modal -->
+    <div class="modal" id="checkout-modal">
+        <div class="modal-content checkout-modal-content">
+            <div class="modal-header">
+                <h3>Checkout - Order Confirmation</h3>
+                <button class="modal-close" onclick="closeModal('checkout-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="checkout-steps">
+                    <!-- Step 1: Customer Information -->
+                    <div class="step active" id="step-1">
+                        <h4>Step 1: Customer Information</h4>
+                        <div class="customer-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="customer-name">Full Name *</label>
+                                    <input type="text" id="customer-name" placeholder="Enter your full name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="customer-phone">Phone Number *</label>
+                                    <input type="tel" id="customer-phone" placeholder="Enter your phone number" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="customer-district">District *</label>
+                                    <select id="customer-district" required onchange="updateThanas()">
+                                        <option value="">Select District</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="customer-thana">Thana/Upazila *</label>
+                                    <select id="customer-thana" required onchange="calculateDeliveryFee()">
+                                        <option value="">Select Thana</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="customer-address">Detailed Address *</label>
+                                <textarea id="customer-address" placeholder="House/Road/Area details" rows="2" required></textarea>
+                            </div>
+                        </div>
+                        
+                        <button class="next-step-btn" onclick="goToStep(2)">
+                            Continue to Payment
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Step 2: Payment Method -->
+                    <div class="step" id="step-2">
+                        <h4>Step 2: Payment Method</h4>
+                        <div class="payment-methods">
+                            <div class="payment-method-selection">
+                                <div class="payment-method-card" data-method="bkash">
+                                    <div class="payment-icon bkash">bKash</div>
+                                    <div class="payment-number">01747-292277</div>
+                                    <input type="radio" name="payment-method" value="bkash" id="payment-bkash">
+                                    <label for="payment-bkash"></label>
+                                </div>
+                                <div class="payment-method-card" data-method="nagad">
+                                    <div class="payment-icon nagad">Nagad</div>
+                                    <div class="payment-number">01747-292277</div>
+                                    <input type="radio" name="payment-method" value="nagad" id="payment-nagad">
+                                    <label for="payment-nagad"></label>
+                                </div>
+                                <div class="payment-method-card" data-method="rocket">
+                                    <div class="payment-icon rocket">Rocket</div>
+                                    <div class="payment-number">01747-292277</div>
+                                    <input type="radio" name="payment-method" value="rocket" id="payment-rocket">
+                                    <label for="payment-rocket"></label>
+                                </div>
+                                <div class="payment-method-card" data-method="cash">
+                                    <div class="payment-icon cash">Cash on Delivery</div>
+                                    <div class="payment-note">Pay when you receive</div>
+                                    <input type="radio" name="payment-method" value="cash" id="payment-cash">
+                                    <label for="payment-cash"></label>
+                                </div>
+                            </div>
+                            
+                            <div class="advance-payment-section" id="advance-payment-section" style="display: none;">
+                                <div class="payment-instructions">
+                                    <h5>Payment Instructions:</h5>
+                                    <ol>
+                                        <li>Send 100 BDT to the selected number above</li>
+                                        <li>Copy the transaction ID</li>
+                                        <li>Enter it in the field below</li>
+                                        <li>Click "Verify Payment" to confirm</li>
+                                    </ol>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="transaction-id">Transaction ID *</label>
+                                    <input type="text" id="transaction-id" placeholder="Enter transaction ID">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="step-buttons">
+                            <button class="prev-step-btn" onclick="goToStep(1)">
+                                <i class="fas fa-arrow-left"></i>
+                                Back
+                            </button>
+                            <button class="next-step-btn" onclick="goToStep(3)">
+                                Continue to Review
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Order Review -->
+                    <div class="step" id="step-3">
+                        <h4>Step 3: Order Review</h4>
+                        
+                        <div class="order-review">
+                            <div class="order-summary">
+                                <h5>Order Summary:</h5>
+                                <div id="checkout-items"></div>
+                                
+                                <div class="order-totals">
+                                    <div class="total-row">
+                                        <span>Subtotal:</span>
+                                        <span>৳<span id="checkout-subtotal">0</span></span>
+                                    </div>
+                                    <div class="total-row promo-applied" id="checkout-promo-discount" style="display: none;">
+                                        <span>Discount:</span>
+                                        <span class="discount">-৳<span id="checkout-discount">0</span></span>
+                                    </div>
+                                    <div class="total-row">
+                                        <span>Delivery Fee:</span>
+                                        <span>৳<span id="checkout-delivery-fee">80</span></span>
+                                    </div>
+                                    <div class="total-row advance-paid" id="advance-paid-row" style="display: none;">
+                                        <span>Advance Paid:</span>
+                                        <span class="paid">-৳100</span>
+                                    </div>
+                                    <div class="total-row final-total">
+                                        <span><strong>Total:</strong></span>
+                                        <span><strong>৳<span id="checkout-total">0</span></strong></span>
+                                    </div>
+                                    <div class="total-row remaining" id="remaining-row">
+                                        <span>Remaining:</span>
+                                        <span>৳<span id="remaining-amount">0</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="customer-summary">
+                                <h5>Delivery Information:</h5>
+                                <div id="customer-summary-details"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="step-buttons">
+                            <button class="prev-step-btn" onclick="goToStep(2)">
+                                <i class="fas fa-arrow-left"></i>
+                                Back
+                            </button>
+                            <button class="place-order-btn" onclick="placeOrder()">
+                                Place Order
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div class="modal" id="order-confirmation-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Order Placed Successfully!</h3>
+            </div>
+            
+            <div class="modal-body">
+                <div class="order-success">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4>Thank you for your order!</h4>
+                    <p>Your order has been placed successfully and is now being processed.</p>
+                    
+                    <div class="order-details">
+                        <div class="order-info">
+                            <strong>Order ID:</strong>
+                            <span id="order-id-display"></span>
+                            <button class="copy-btn" onclick="copyOrderId()">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="tracking-info">
+                            <p>You can track your order status using the Order ID above.</p>
+                            <a href="track-order.html" class="track-order-btn">
+                                <i class="fas fa-truck"></i>
+                                Track Your Order
+                            </a>
+                        </div>
+                        
+                        <div class="contact-info">
+                            <p>We will contact you soon to confirm delivery details.</p>
+                            <div class="contact-buttons">
+                                <a href="https://wa.me/01747292277" target="_blank" class="whatsapp-contact">
+                                    <i class="fab fa-whatsapp"></i>
+                                    Contact on WhatsApp
+                                </a>
+                                <button class="send-whatsapp-btn" onclick="sendOrderViaWhatsApp()">
+                                    <i class="fab fa-whatsapp"></i>
+                                    Send via WhatsApp (Optional)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="continue-shopping-btn" onclick="closeOrderConfirmation()">
+                    Continue Shopping
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>TryneX</h3>
+                    <p>Premium gifts and lifestyle products for every occasion.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="track-order.html">Track Order</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 TryneX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="products.js"></script>
+</body>
+</html>
