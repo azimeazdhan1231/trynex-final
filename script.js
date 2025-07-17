@@ -44,15 +44,9 @@ async function initializeApp() {
 // Load Data
 async function loadData() {
     try {
-        // Load products
-        const productResponse = await fetch('./products.json');
-        if (productResponse.ok) {
-            products = await productResponse.json();
-        } else {
-            // Fallback to static data if JSON files don't exist
-            products = getStaticProducts();
-        }
-
+        // Try to load from CMS-managed files first
+        await loadProductsFromCMS();
+        
         // Load categories
         const categoryResponse = await fetch('./categories.json');
         if (categoryResponse.ok) {
@@ -68,6 +62,85 @@ async function loadData() {
         categories = getStaticCategories();
         filteredProducts = [...products];
     }
+}
+
+// Load products from CMS markdown files
+async function loadProductsFromCMS() {
+    const productFiles = [
+        'classic-ceramic-mug.md',
+        'designer-mug.md',
+        'premium-ceramic-mug.md',
+        'comfort-t-shirt.md',
+        'premium-graphic-tee.md',
+        'designer-t-shirt.md',
+        'elegant-keychain.md',
+        'custom-keychain.md',
+        'eco-friendly-bottle.md',
+        'insulated-bottle.md',
+        'mens-leather-wallet.md',
+        'ladies-pearl-necklace.md',
+        'family-photo-frame.md',
+        'baby-rattle-set.md',
+        'couple-mug-set.md',
+        'luxury-hamper.md',
+        'premium-gift-hamper.md',
+        'chocolate-flower-combo.md'
+    ];
+    
+    products = [];
+    
+    for (const file of productFiles) {
+        try {
+            const response = await fetch(`_products/${file}`);
+            if (response.ok) {
+                const content = await response.text();
+                const product = parseMarkdownProduct(content);
+                if (product) {
+                    products.push(product);
+                }
+            }
+        } catch (error) {
+            console.warn(`Failed to load product file: ${file}`);
+        }
+    }
+    
+    // If no CMS products loaded, fall back to JSON
+    if (products.length === 0) {
+        const productResponse = await fetch('./products.json');
+        if (productResponse.ok) {
+            products = await productResponse.json();
+        } else {
+            products = getStaticProducts();
+        }
+    }
+}
+
+// Parse markdown product file
+function parseMarkdownProduct(content) {
+    const frontMatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+    if (!frontMatterMatch) return null;
+    
+    const frontMatter = frontMatterMatch[1];
+    const product = {};
+    
+    frontMatter.split('\n').forEach(line => {
+        const match = line.match(/^(\w+):\s*(.*)$/);
+        if (match) {
+            const key = match[1];
+            let value = match[2].replace(/^["']|["']$/g, ''); // Remove quotes
+            
+            // Convert string values to appropriate types
+            if (key === 'id' || key === 'price') {
+                value = parseInt(value);
+            } else if (key === 'featured' || key === 'in_stock') {
+                value = value === 'true';
+            }
+            
+            product[key] = value;
+        }
+    });
+    
+    return product.id ? product : null;
 }
 
 // Static Data Fallbacks
