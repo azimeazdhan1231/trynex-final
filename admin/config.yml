@@ -1,0 +1,51 @@
+
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "assets/images"
+public_folder: "/assets/images"
+
+collections:
+  - name: "products"
+    label: "Products"
+    folder: "_products"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "ID", name: "id", widget: "number" }
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Name (Bengali)", name: "name_bn", widget: "string" }
+      - { label: "Price", name: "price", widget: "number" }
+      - { label: "Category", name: "category", widget: "string" }
+      - { label: "Image", name: "image", widget: "image" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Description (Bengali)", name: "description_bn", widget: "text" }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "In Stock", name: "in_stock", widget: "boolean", default: true }
+      - { label: "Badge", name: "badge", widget: "string", required: false }
+
+  - name: "categories"
+    label: "Categories"
+    folder: "_categories"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "ID", name: "id", widget: "number" }
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Name (Bengali)", name: "name_bn", widget: "string" }
+      - { label: "Icon", name: "icon", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Sort Order", name: "sort_order", widget: "number", default: 0 }
+
+  - name: "settings"
+    label: "Settings"
+    files:
+      - label: "Site Settings"
+        name: "site"
+        file: "_data/homepage.yml"
+        fields:
+          - { label: "Site Title", name: "title", widget: "string" }
+          - { label: "Site Description", name: "description", widget: "text" }
+          - { label: "WhatsApp Number", name: "whatsapp", widget: "string" }
+          - { label: "Payment Number", name: "payment", widget: "string" }
