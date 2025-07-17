@@ -1,4 +1,3 @@
-
 // Global Variables
 let products = [];
 let categories = [];
@@ -23,7 +22,7 @@ async function initializeWebsite() {
         initializeHeroSlider();
         initializeAnimations();
         loadBannerOffers();
-        
+
         console.log('TryneX website initialized successfully');
     } catch (error) {
         console.error('Error initializing website:', error);
@@ -36,14 +35,14 @@ async function loadData() {
         // Load products
         const productsResponse = await fetch('./products.json');
         products = await productsResponse.json();
-        
+
         // Load categories
         const categoriesResponse = await fetch('./categories.json');
         categories = await categoriesResponse.json();
-        
+
         loadCategories();
         loadFeaturedProducts();
-        
+
     } catch (error) {
         console.error('Error loading data:', error);
         // Fallback data
@@ -83,12 +82,12 @@ function loadFallbackData() {
             rating: 4.7
         }
     ];
-    
+
     categories = [
         { id: 1, name: "Mugs", name_bn: "মগ", icon: "fas fa-coffee", description: "Premium ceramic mugs starting from ৫৫০৳" },
         { id: 2, name: "T-Shirts", name_bn: "টি-শার্ট", icon: "fas fa-tshirt", description: "Comfortable t-shirts starting from ৫৫০৳" }
     ];
-    
+
     loadCategories();
     loadFeaturedProducts();
 }
@@ -98,14 +97,14 @@ function initializeComponents() {
     // Mobile menu toggle
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.getElementById('nav-menu');
-    
+
     if (hamburger && navMenu) {
         hamburger.addEventListener('click', function() {
             hamburger.classList.toggle('active');
             navMenu.classList.toggle('active');
         });
     }
-    
+
     // Header scroll effect
     const header = document.getElementById('header');
     if (header) {
@@ -117,7 +116,7 @@ function initializeComponents() {
             }
         });
     }
-    
+
     // Newsletter form
     const newsletterForm = document.getElementById('newsletter-form');
     if (newsletterForm) {
@@ -126,7 +125,7 @@ function initializeComponents() {
             handleNewsletterSubmission();
         });
     }
-    
+
     // Contact form
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
@@ -135,10 +134,10 @@ function initializeComponents() {
             handleContactFormSubmission();
         });
     }
-    
+
     // Stats animation
     animateStats();
-    
+
     // Testimonials rotation
     initializeTestimonials();
 }
@@ -151,27 +150,27 @@ function initializeSearch() {
     const searchInput = document.getElementById('search-input');
     const searchSubmit = document.getElementById('search-submit');
     const searchSuggestions = document.getElementById('search-suggestions');
-    
+
     if (searchBtn && searchOverlay) {
         searchBtn.addEventListener('click', function() {
             searchOverlay.classList.add('active');
             searchInput.focus();
         });
     }
-    
+
     if (searchClose) {
         searchClose.addEventListener('click', function() {
             searchOverlay.classList.remove('active');
             clearSearchSuggestions();
         });
     }
-    
+
     // Advanced search with real-time suggestions
     if (searchInput) {
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
             const query = this.value.trim().toLowerCase();
-            
+
             if (query.length > 0) {
                 searchTimeout = setTimeout(() => {
                     showSearchSuggestions(query);
@@ -180,7 +179,7 @@ function initializeSearch() {
                 clearSearchSuggestions();
             }
         });
-        
+
         searchInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -188,13 +187,13 @@ function initializeSearch() {
             }
         });
     }
-    
+
     if (searchSubmit) {
         searchSubmit.addEventListener('click', function() {
             performSearch(searchInput.value);
         });
     }
-    
+
     // Close search on overlay click
     if (searchOverlay) {
         searchOverlay.addEventListener('click', function(e) {
@@ -210,7 +209,7 @@ function initializeSearch() {
 function showSearchSuggestions(query) {
     const suggestions = generateSearchSuggestions(query);
     const searchSuggestions = document.getElementById('search-suggestions');
-    
+
     if (suggestions.length > 0 && searchSuggestions) {
         searchSuggestions.innerHTML = suggestions.map(suggestion => `
             <div class="suggestion-item" onclick="selectSuggestion('${suggestion.text}', '${suggestion.type}', ${suggestion.id || 'null'})">
@@ -228,7 +227,7 @@ function showSearchSuggestions(query) {
 function generateSearchSuggestions(query) {
     const suggestions = [];
     const maxSuggestions = 8;
-    
+
     // Search products
     products.forEach(product => {
         const score = calculateSearchScore(query, product);
@@ -243,7 +242,7 @@ function generateSearchSuggestions(query) {
             });
         }
     });
-    
+
     // Search categories
     categories.forEach(category => {
         const score = calculateSearchScore(query, category);
@@ -258,7 +257,7 @@ function generateSearchSuggestions(query) {
             });
         }
     });
-    
+
     // Sort by relevance score and return top suggestions
     return suggestions
         .sort((a, b) => b.score - a.score)
@@ -269,7 +268,7 @@ function calculateSearchScore(query, item) {
     let score = 0;
     const queryWords = query.toLowerCase().split(' ');
     const itemText = (item.name + ' ' + (item.description || '') + ' ' + (item.category || '')).toLowerCase();
-    
+
     queryWords.forEach(word => {
         if (itemText.includes(word)) {
             // Exact match in name gets highest score
@@ -284,21 +283,21 @@ function calculateSearchScore(query, item) {
             else {
                 score += 2;
             }
-            
+
             // Bonus for word at beginning
             if (item.name.toLowerCase().startsWith(word)) {
                 score += 5;
             }
         }
     });
-    
+
     return score;
 }
 
 function selectSuggestion(text, type, id) {
     const searchInput = document.getElementById('search-input');
     const searchOverlay = document.getElementById('search-overlay');
-    
+
     if (type === 'product' && id) {
         // Redirect to product
         window.location.href = `products.html?product=${id}`;
@@ -311,16 +310,16 @@ function selectSuggestion(text, type, id) {
         searchInput.value = text;
         performSearch(text);
     }
-    
+
     clearSearchSuggestions();
 }
 
 function performSearch(query) {
     if (!query.trim()) return;
-    
+
     // Save search query
     localStorage.setItem('searchQuery', query);
-    
+
     // Redirect to products page with search
     window.location.href = `products.html?search=${encodeURIComponent(query)}`;
 }
@@ -337,7 +336,7 @@ function clearSearchSuggestions() {
 function loadCategories() {
     const categoryGrid = document.getElementById('category-grid');
     const categorySelect = document.getElementById('category-select');
-    
+
     if (categoryGrid) {
         categoryGrid.innerHTML = categories.map(category => `
             <div class="category-card" onclick="filterByCategory('${category.name}')">
@@ -351,11 +350,11 @@ function loadCategories() {
             </div>
         `).join('');
     }
-    
+
     if (categorySelect) {
         categorySelect.innerHTML = '<option value="">All Categories</option>' +
             categories.map(category => `<option value="${category.name}">${category.name}</option>`).join('');
-        
+
         categorySelect.addEventListener('change', function() {
             if (this.value) {
                 filterByCategory(this.value);
@@ -368,9 +367,9 @@ function loadCategories() {
 function loadFeaturedProducts() {
     const featuredProductsGrid = document.getElementById('featured-products-grid');
     if (!featuredProductsGrid) return;
-    
+
     const featuredProducts = products.filter(product => product.featured).slice(0, 6);
-    
+
     featuredProductsGrid.innerHTML = featuredProducts.map(product => `
         <div class="product-card" data-id="${product.id}">
             <div class="product-image">
@@ -410,9 +409,9 @@ function filterByCategory(categoryName) {
 function addToCart(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
-    
+
     const existingItem = cart.find(item => item.id === productId);
-    
+
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
@@ -424,7 +423,7 @@ function addToCart(productId) {
             quantity: 1
         });
     }
-    
+
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartUI();
     showCartNotification(product.name);
@@ -440,9 +439,9 @@ function removeFromCart(productId) {
 function updateQuantity(productId, change) {
     const item = cart.find(item => item.id === productId);
     if (!item) return;
-    
+
     item.quantity += change;
-    
+
     if (item.quantity <= 0) {
         removeFromCart(productId);
     } else {
@@ -455,14 +454,14 @@ function updateQuantity(productId, change) {
 function updateCartUI() {
     const cartCount = document.getElementById('cart-count');
     const cartBtn = document.getElementById('cart-btn');
-    
+
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    
+
     if (cartCount) {
         cartCount.textContent = totalItems;
         cartCount.style.display = totalItems > 0 ? 'block' : 'none';
     }
-    
+
     if (cartBtn) {
         cartBtn.addEventListener('click', function() {
             openModal('cart-modal');
@@ -472,12 +471,19 @@ function updateCartUI() {
 }
 
 function updateCartModal() {
+    const cartModal = document.getElementById('cart-modal');
     const cartItems = document.getElementById('cart-items');
     const cartEmpty = document.getElementById('cart-empty');
     const cartFooter = document.getElementById('cart-footer');
     const promoSection = document.getElementById('promo-section');
     const instructionsSection = document.getElementById('instructions-section');
-    
+
+    // Ensure cart modal exists
+    if (!cartModal) {
+        console.error('Cart modal not found');
+        return;
+    }
+
     if (cart.length === 0) {
         if (cartItems) cartItems.style.display = 'none';
         if (cartEmpty) cartEmpty.style.display = 'block';
@@ -486,13 +492,13 @@ function updateCartModal() {
         if (instructionsSection) instructionsSection.style.display = 'none';
         return;
     }
-    
+
     if (cartItems) cartItems.style.display = 'block';
     if (cartEmpty) cartEmpty.style.display = 'none';
     if (cartFooter) cartFooter.style.display = 'block';
     if (promoSection) promoSection.style.display = 'block';
     if (instructionsSection) instructionsSection.style.display = 'block';
-    
+
     if (cartItems) {
         cartItems.innerHTML = cart.map(item => `
             <div class="cart-item">
@@ -510,34 +516,34 @@ function updateCartModal() {
             </div>
         `).join('');
     }
-    
+
     updateCartSummary();
 }
 
 function updateCartSummary() {
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     let discount = 0;
-    
+
     // Apply promo discount if active
     if (currentPromoCode) {
         discount = Math.round(subtotal * (currentPromoCode.discount / 100));
     }
-    
+
     const deliveryFee = calculateDeliveryFee();
     const total = subtotal - discount + deliveryFee;
-    
+
     // Update UI elements
     const subtotalElement = document.getElementById('cart-subtotal');
     const discountElement = document.getElementById('discount-amount');
     const promoDiscountRow = document.getElementById('promo-discount');
     const deliveryFeeElement = document.getElementById('delivery-fee');
     const totalElement = document.getElementById('cart-total');
-    
+
     if (subtotalElement) subtotalElement.textContent = subtotal;
     if (discountElement) discountElement.textContent = discount;
     if (deliveryFeeElement) deliveryFeeElement.textContent = deliveryFee;
     if (totalElement) totalElement.textContent = total;
-    
+
     if (promoDiscountRow) {
         promoDiscountRow.style.display = discount > 0 ? 'flex' : 'none';
     }
@@ -553,32 +559,32 @@ function calculateDeliveryFee() {
 function applyPromoCode() {
     const promoInput = document.getElementById('promo-code');
     const promoStatus = document.getElementById('promo-status');
-    
+
     if (!promoInput || !promoStatus) return;
-    
+
     const code = promoInput.value.trim().toUpperCase();
-    
+
     if (!code) {
         showPromoStatus('Please enter a promo code', 'error');
         return;
     }
-    
+
     // Check if code is valid
     const validPromos = {
         'WELCOME10': { discount: 10, description: '10% off on first order' },
         'SAVE20': { discount: 20, description: '20% off on orders above ৳1000' },
         'FIRSTBUY': { discount: 15, description: '15% off for new customers' }
     };
-    
+
     if (validPromos[code]) {
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        
+
         // Check minimum order conditions
         if (code === 'SAVE20' && subtotal < 1000) {
             showPromoStatus('This code requires minimum order of ৳1000', 'error');
             return;
         }
-        
+
         currentPromoCode = validPromos[code];
         showPromoStatus(`Promo applied! ${currentPromoCode.description}`, 'success');
         updateCartSummary();
@@ -590,11 +596,11 @@ function applyPromoCode() {
 function showPromoStatus(message, type) {
     const promoStatus = document.getElementById('promo-status');
     if (!promoStatus) return;
-    
+
     promoStatus.textContent = message;
     promoStatus.className = `promo-status ${type}`;
     promoStatus.style.display = 'block';
-    
+
     setTimeout(() => {
         if (type === 'error') {
             promoStatus.style.display = 'none';
@@ -605,11 +611,11 @@ function showPromoStatus(message, type) {
 // Order Processing
 function proceedToCheckout() {
     if (cart.length === 0) return;
-    
+
     // Generate unique order ID
     const orderId = generateOrderId();
     const specialInstructions = document.getElementById('special-instructions-cart')?.value || '';
-    
+
     const order = {
         id: orderId,
         items: [...cart],
@@ -624,16 +630,16 @@ function proceedToCheckout() {
         createdAt: new Date().toISOString(),
         estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() // 3 days from now
     };
-    
+
     // Save order
     orders.push(order);
     localStorage.setItem('orders', JSON.stringify(orders));
-    
+
     // Clear cart
     cart = [];
     localStorage.setItem('cart', JSON.stringify(cart));
     currentPromoCode = null;
-    
+
     // Close modal and show order confirmation
     closeModal('cart-modal');
     showOrderConfirmation(order);
@@ -703,7 +709,7 @@ function showOrderConfirmation(order) {
             </div>
         </div>
     `;
-    
+
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
@@ -723,7 +729,7 @@ function copyOrderId(orderId) {
 function orderViaWhatsApp(productId = null, orderId = null) {
     let message = '';
     const whatsappNumber = '01747292277';
-    
+
     if (orderId) {
         message = `Hi! I need support for my order ${orderId}. Please help me with the payment process.`;
     } else if (productId) {
@@ -732,7 +738,7 @@ function orderViaWhatsApp(productId = null, orderId = null) {
     } else {
         message = `Hi! I'd like to place an order from TryneX. Please assist me.`;
     }
-    
+
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
 }
@@ -751,7 +757,7 @@ function closeModal(modalId) {
     if (modal) {
         modal.classList.remove('active');
         document.body.style.overflow = '';
-        
+
         // Remove dynamic modals
         if (modalId === 'order-confirmation-modal') {
             setTimeout(() => modal.remove(), 300);
@@ -763,9 +769,9 @@ function closeModal(modalId) {
 function initializeHeroSlider() {
     const slides = document.querySelectorAll('.slide');
     const indicators = document.querySelectorAll('.indicator');
-    
+
     if (slides.length === 0) return;
-    
+
     setInterval(() => {
         changeSlide(1);
     }, 5000);
@@ -774,14 +780,14 @@ function initializeHeroSlider() {
 function changeSlide(direction) {
     const slides = document.querySelectorAll('.slide');
     const indicators = document.querySelectorAll('.indicator');
-    
+
     if (slides.length === 0) return;
-    
+
     slides[currentSlide].classList.remove('active');
     indicators[currentSlide].classList.remove('active');
-    
+
     currentSlide = (currentSlide + direction + slides.length) % slides.length;
-    
+
     slides[currentSlide].classList.add('active');
     indicators[currentSlide].classList.add('active');
 }
@@ -789,14 +795,14 @@ function changeSlide(direction) {
 function goToSlide(slideIndex) {
     const slides = document.querySelectorAll('.slide');
     const indicators = document.querySelectorAll('.indicator');
-    
+
     if (slides.length === 0) return;
-    
+
     slides[currentSlide].classList.remove('active');
     indicators[currentSlide].classList.remove('active');
-    
+
     currentSlide = slideIndex - 1;
-    
+
     slides[currentSlide].classList.add('active');
     indicators[currentSlide].classList.add('active');
 }
@@ -811,14 +817,14 @@ function loadBannerOffers() {
             "🚚 Free delivery on orders above ৳1000 in Dhaka Metro Area",
             "💝 Special combo offers available - Check our gift hampers!"
         ];
-        
+
         let currentOffer = 0;
-        
+
         function showNextOffer() {
             bannerOffers.innerHTML = `<div class="banner-offer">${offers[currentOffer]}</div>`;
             currentOffer = (currentOffer + 1) % offers.length;
         }
-        
+
         showNextOffer();
         setInterval(showNextOffer, 4000);
     }
@@ -827,7 +833,7 @@ function loadBannerOffers() {
 // Statistics Animation
 function animateStats() {
     const statNumbers = document.querySelectorAll('.stat-number');
-    
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -837,25 +843,25 @@ function animateStats() {
             }
         });
     });
-    
+
     statNumbers.forEach(stat => observer.observe(stat));
 }
 
 function animateValue(element, start, end, duration) {
     const startTime = performance.now();
-    
+
     function updateValue(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        
+
         const current = Math.floor(progress * (end - start) + start);
         element.textContent = current;
-        
+
         if (progress < 1) {
             requestAnimationFrame(updateValue);
         }
     }
-    
+
     requestAnimationFrame(updateValue);
 }
 
@@ -863,15 +869,15 @@ function animateValue(element, start, end, duration) {
 function initializeTestimonials() {
     const testimonials = document.querySelectorAll('.testimonial-card');
     if (testimonials.length === 0) return;
-    
+
     let currentTestimonial = 0;
-    
+
     function showNextTestimonial() {
         testimonials[currentTestimonial].classList.remove('active');
         currentTestimonial = (currentTestimonial + 1) % testimonials.length;
         testimonials[currentTestimonial].classList.add('active');
     }
-    
+
     setInterval(showNextTestimonial, 6000);
 }
 
@@ -880,12 +886,12 @@ function handleNewsletterSubmission() {
     const emailInput = document.getElementById('email-input');
     const newsletterForm = document.getElementById('newsletter-form');
     const newsletterSuccess = document.getElementById('newsletter-success');
-    
+
     if (emailInput && newsletterForm && newsletterSuccess) {
         // Simulate subscription
         newsletterForm.style.display = 'none';
         newsletterSuccess.classList.add('show');
-        
+
         // Reset after 5 seconds
         setTimeout(() => {
             newsletterForm.style.display = 'block';
@@ -898,16 +904,16 @@ function handleNewsletterSubmission() {
 function handleContactFormSubmission() {
     const form = document.getElementById('contact-form');
     const button = form.querySelector('button');
-    
+
     // Simulate form submission
     button.disabled = true;
     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-    
+
     setTimeout(() => {
         button.disabled = false;
         button.innerHTML = 'Send Message <i class="fas fa-paper-plane"></i>';
         form.reset();
-        
+
         // Show success message
         alert('Thank you! Your message has been sent successfully.');
     }, 2000);
@@ -929,7 +935,7 @@ function showCartNotification(productName) {
         <i class="fas fa-check-circle"></i>
         <span>${productName} added to cart!</span>
     `;
-    
+
     // Add styles
     notification.style.cssText = `
         position: fixed;
@@ -948,14 +954,14 @@ function showCartNotification(productName) {
         transform: translateX(100%);
         transition: var(--transition);
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Animate in
     setTimeout(() => {
         notification.style.transform = 'translateX(0)';
     }, 100);
-    
+
     // Remove after 3 seconds
     setTimeout(() => {
         notification.style.transform = 'translateX(100%)';
@@ -978,13 +984,13 @@ function initializeAnimations() {
             }
         });
     });
-    
+
     // Intersection Observer for fade-in animations
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
     };
-    
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -993,7 +999,7 @@ function initializeAnimations() {
             }
         });
     }, observerOptions);
-    
+
     // Observe elements for animation
     document.querySelectorAll('.category-card, .product-card, .stat-card, .badge').forEach(el => {
         el.style.opacity = '0';
@@ -1018,7 +1024,7 @@ document.addEventListener('keydown', function(e) {
         if (activeModal) {
             closeModal(activeModal.id);
         }
-        
+
         const searchOverlay = document.getElementById('search-overlay');
         if (searchOverlay && searchOverlay.classList.contains('active')) {
             searchOverlay.classList.remove('active');

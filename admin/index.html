@@ -507,14 +507,44 @@
                 }
             }, 1000);
 
-            // Load statistics (this would be replaced with actual data loading)
-            setTimeout(() => {
-                document.getElementById('total-products').textContent = '18';
-                document.getElementById('total-orders').textContent = '24';
-                document.getElementById('active-promos').textContent = '3';
-                document.getElementById('revenue').textContent = '৳45,600';
-            }, 1500);
+            // Load real statistics
+            loadRealStatistics();
         });
+
+        // Load real statistics from data
+        function loadRealStatistics() {
+            try {
+                // Load products data
+                fetch('../products.json')
+                    .then(response => response.json())
+                    .then(products => {
+                        document.getElementById('total-products').textContent = products.length;
+                    })
+                    .catch(() => {
+                        document.getElementById('total-products').textContent = '0';
+                    });
+
+                // Load orders from localStorage
+                const orders = JSON.parse(localStorage.getItem('orders')) || [];
+                document.getElementById('total-orders').textContent = orders.length;
+
+                // Calculate total revenue
+                const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+                document.getElementById('revenue').textContent = `৳${totalRevenue.toLocaleString()}`;
+
+                // Count active promos (example promo codes)
+                const activePromos = ['WELCOME10', 'SAVE20', 'FIRSTBUY'];
+                document.getElementById('active-promos').textContent = activePromos.length;
+
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+                // Fallback to default values
+                document.getElementById('total-products').textContent = '0';
+                document.getElementById('total-orders').textContent = '0';
+                document.getElementById('active-promos').textContent = '0';
+                document.getElementById('revenue').textContent = '৳0';
+            }
+        }
 
         // Custom editor components for better content management
         CMS.registerEditorComponent({
