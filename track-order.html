@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order - TryneX</title>
+    <meta name="description" content="Track your TryneX order status and delivery information.">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html">
+                        <h1>TryneX</h1>
+                        <span class="logo-tagline">Premium Lifestyle</span>
+                    </a>
+                </div>
+                
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="products.html" class="nav-link">Products</a></li>
+                    <li><a href="track-order.html" class="nav-link active">Track Order</a></li>
+                    <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+                </ul>
+                
+                <div class="nav-actions">
+                    <button class="cart-btn" id="cart-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cart-count">0</span>
+                    </button>
+                    <button class="hamburger" id="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Track Order Content -->
+    <main class="track-order-page">
+        <div class="container">
+            <div class="page-header">
+                <h1>Track Your Order</h1>
+                <p>Enter your order ID to check the status and delivery information</p>
+            </div>
+
+            <!-- Order Tracking Form -->
+            <div class="tracking-form">
+                <div class="form-container">
+                    <div class="form-group">
+                        <label for="order-id-input">Order ID</label>
+                        <div class="input-with-button">
+                            <input type="text" id="order-id-input" placeholder="Enter your order ID (e.g., TRX2025001)">
+                            <button class="track-btn" onclick="trackOrder()">
+                                <i class="fas fa-search"></i>
+                                Track Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Status Display -->
+            <div class="order-status" id="order-status" style="display: none;">
+                <div class="order-info-card">
+                    <div class="order-header">
+                        <h3>Order Details</h3>
+                        <div class="order-id">
+                            <span>Order ID: </span>
+                            <strong id="display-order-id"></strong>
+                        </div>
+                    </div>
+                    
+                    <div class="order-content">
+                        <div class="customer-info">
+                            <h4>Customer Information</h4>
+                            <div id="customer-details"></div>
+                        </div>
+                        
+                        <div class="order-items">
+                            <h4>Order Items</h4>
+                            <div id="order-items-list"></div>
+                        </div>
+                        
+                        <div class="order-summary">
+                            <h4>Order Summary</h4>
+                            <div id="order-total-details"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Status Timeline -->
+                <div class="status-timeline">
+                    <h3>Order Status</h3>
+                    <div class="timeline">
+                        <div class="timeline-item" data-status="placed">
+                            <div class="timeline-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Order Placed</h4>
+                                <p>Your order has been received and is being processed</p>
+                                <span class="timestamp" id="timestamp-placed"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item" data-status="confirmed">
+                            <div class="timeline-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Order Confirmed</h4>
+                                <p>Your order has been confirmed and payment verified</p>
+                                <span class="timestamp" id="timestamp-confirmed"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item" data-status="processing">
+                            <div class="timeline-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Processing</h4>
+                                <p>Your order is being prepared for shipment</p>
+                                <span class="timestamp" id="timestamp-processing"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item" data-status="shipped">
+                            <div class="timeline-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Shipped</h4>
+                                <p>Your order is on the way to your delivery address</p>
+                                <span class="timestamp" id="timestamp-shipped"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item" data-status="delivered">
+                            <div class="timeline-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Delivered</h4>
+                                <p>Your order has been successfully delivered</p>
+                                <span class="timestamp" id="timestamp-delivered"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="additional-info">
+                    <div class="info-card">
+                        <h4>Delivery Information</h4>
+                        <div id="delivery-info"></div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <h4>Payment Information</h4>
+                        <div id="payment-info"></div>
+                    </div>
+                </div>
+
+                <!-- Contact Support -->
+                <div class="support-section">
+                    <h4>Need Help?</h4>
+                    <p>If you have any questions about your order, feel free to contact us.</p>
+                    <div class="support-buttons">
+                        <a href="https://wa.me/01747292277" target="_blank" class="support-btn whatsapp">
+                            <i class="fab fa-whatsapp"></i>
+                            WhatsApp Support
+                        </a>
+                        <a href="tel:01747292277" class="support-btn phone">
+                            <i class="fas fa-phone"></i>
+                            Call Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Not Found -->
+            <div class="order-not-found" id="order-not-found" style="display: none;">
+                <div class="not-found-content">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Order Not Found</h3>
+                    <p>We couldn't find an order with the provided ID. Please check your order ID and try again.</p>
+                    <button class="retry-btn" onclick="clearTrackingForm()">
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Tracking your order...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+    <script src="track-order.js"></script>
+</body>
+</html>

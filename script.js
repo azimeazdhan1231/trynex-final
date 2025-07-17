@@ -46,7 +46,7 @@ async function loadData() {
     try {
         // Try to load from CMS-managed files first
         await loadProductsFromCMS();
-        
+
         // Load categories
         const categoryResponse = await fetch('./categories.json');
         if (categoryResponse.ok) {
@@ -86,9 +86,9 @@ async function loadProductsFromCMS() {
         'premium-gift-hamper.md',
         'chocolate-flower-combo.md'
     ];
-    
+
     products = [];
-    
+
     for (const file of productFiles) {
         try {
             const response = await fetch(`_products/${file}`);
@@ -103,7 +103,7 @@ async function loadProductsFromCMS() {
             console.warn(`Failed to load product file: ${file}`);
         }
     }
-    
+
     // If no CMS products loaded, fall back to JSON
     if (products.length === 0) {
         const productResponse = await fetch('./products.json');
@@ -119,27 +119,27 @@ async function loadProductsFromCMS() {
 function parseMarkdownProduct(content) {
     const frontMatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
     if (!frontMatterMatch) return null;
-    
+
     const frontMatter = frontMatterMatch[1];
     const product = {};
-    
+
     frontMatter.split('\n').forEach(line => {
         const match = line.match(/^(\w+):\s*(.*)$/);
         if (match) {
             const key = match[1];
             let value = match[2].replace(/^["']|["']$/g, ''); // Remove quotes
-            
+
             // Convert string values to appropriate types
             if (key === 'id' || key === 'price') {
                 value = parseInt(value);
             } else if (key === 'featured' || key === 'in_stock') {
                 value = value === 'true';
             }
-            
+
             product[key] = value;
         }
     });
-    
+
     return product.id ? product : null;
 }
 
@@ -350,7 +350,7 @@ function setupEventListeners() {
     // Navigation
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.getElementById('nav-menu');
-    
+
     hamburger.addEventListener('click', () => {
         hamburger.classList.toggle('active');
         navMenu.classList.toggle('active');
@@ -359,12 +359,12 @@ function setupEventListeners() {
     // Search
     const searchBtn = document.getElementById('search-btn');
     const searchClose = document.getElementById('search-close');
-    
+
     searchBtn.addEventListener('click', () => {
         searchOverlay.classList.add('active');
         searchInput.focus();
     });
-    
+
     searchClose.addEventListener('click', () => {
         searchOverlay.classList.remove('active');
         searchInput.value = '';
@@ -422,12 +422,12 @@ function startSlideshow() {
 function changeSlide(direction) {
     const slides = document.querySelectorAll('.slide');
     const indicators = document.querySelectorAll('.indicator');
-    
+
     slides[currentSlide].classList.remove('active');
     indicators[currentSlide].classList.remove('active');
-    
+
     currentSlide = (currentSlide + direction + slides.length) % slides.length;
-    
+
     slides[currentSlide].classList.add('active');
     indicators[currentSlide].classList.add('active');
 }
@@ -435,12 +435,12 @@ function changeSlide(direction) {
 function goToSlide(n) {
     const slides = document.querySelectorAll('.slide');
     const indicators = document.querySelectorAll('.indicator');
-    
+
     slides[currentSlide].classList.remove('active');
     indicators[currentSlide].classList.remove('active');
-    
+
     currentSlide = n - 1;
-    
+
     slides[currentSlide].classList.add('active');
     indicators[currentSlide].classList.add('active');
 }
@@ -449,7 +449,7 @@ function goToSlide(n) {
 function renderCategories() {
     const categoryGrid = document.getElementById('category-grid');
     const categorySelect = document.getElementById('category-select');
-    
+
     // Render category cards
     categoryGrid.innerHTML = categories.map(category => `
         <div class="category-card" onclick="filterByCategory('${category.name}')">
@@ -462,7 +462,7 @@ function renderCategories() {
             </div>
         </div>
     `).join('');
-    
+
     // Populate category select
     categorySelect.innerHTML = '<option value="">All Categories</option>' + 
         categories.map(category => `
@@ -473,7 +473,7 @@ function renderCategories() {
 function renderProducts() {
     const productsGrid = document.getElementById('products-grid');
     const productsToShow = filteredProducts.slice(0, displayedProducts);
-    
+
     productsGrid.innerHTML = productsToShow.map(product => `
         <div class="product-card fade-in" data-category="${product.category}">
             <div class="product-image">
@@ -498,7 +498,7 @@ function renderProducts() {
             </div>
         </div>
     `).join('');
-    
+
     // Update load more button
     const loadMoreBtn = document.getElementById('load-more-btn');
     if (displayedProducts >= filteredProducts.length) {
@@ -511,7 +511,7 @@ function renderProducts() {
 // Search and Filter Functions
 function handleSearch(e) {
     const query = e.target.value.toLowerCase();
-    
+
     if (query === '') {
         filteredProducts = [...products];
     } else {
@@ -521,7 +521,7 @@ function handleSearch(e) {
             product.description.toLowerCase().includes(query)
         );
     }
-    
+
     displayedProducts = 6;
     renderProducts();
 }
@@ -532,14 +532,14 @@ function filterByCategory(category) {
     } else {
         filteredProducts = products.filter(product => product.category === category);
     }
-    
+
     displayedProducts = 6;
     renderProducts();
-    
+
     // Update category select
     const categorySelect = document.getElementById('category-select');
     categorySelect.value = category || '';
-    
+
     // Scroll to products section
     scrollToSection('shop');
 }
@@ -553,9 +553,9 @@ function loadMoreProducts() {
 function addToCart(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
-    
+
     const existingItem = cart.find(item => item.id === productId);
-    
+
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
@@ -564,7 +564,7 @@ function addToCart(productId) {
             quantity: 1
         });
     }
-    
+
     updateCartUI();
     saveCartToStorage();
     showSuccessMessage('Product added to cart!');
@@ -579,9 +579,9 @@ function removeFromCart(productId) {
 function updateQuantity(productId, change) {
     const item = cart.find(item => item.id === productId);
     if (!item) return;
-    
+
     item.quantity += change;
-    
+
     if (item.quantity <= 0) {
         removeFromCart(productId);
     } else {
@@ -596,13 +596,13 @@ function updateCartUI() {
     const cartEmpty = document.getElementById('cart-empty');
     const cartFooter = document.getElementById('cart-footer');
     const cartTotal = document.getElementById('cart-total');
-    
+
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
+
     cartCount.textContent = totalItems;
     cartTotal.textContent = totalPrice;
-    
+
     if (cart.length === 0) {
         cartItems.style.display = 'none';
         cartEmpty.style.display = 'block';
@@ -611,7 +611,7 @@ function updateCartUI() {
         cartItems.style.display = 'block';
         cartEmpty.style.display = 'none';
         cartFooter.style.display = 'block';
-        
+
         cartItems.innerHTML = cart.map(item => `
             <div class="cart-item">
                 <img src="${item.image}" alt="${item.name}" class="cart-item-image" onerror="this.src='https://via.placeholder.com/80x80/d4af37/000000?text=${encodeURIComponent(item.name)}'">
@@ -636,75 +636,248 @@ function updateCartUI() {
     }
 }
 
-// Checkout Functions
-function proceedToCheckout() {
-    if (cart.length === 0) {
-        showErrorMessage('Your cart is empty!');
+// Enhanced checkout with order management
+let selectedPaymentMethod = null;
+let currentStep = 1;
+let orderData = {};
+
+// Enhanced cart with promo code support
+if (!cart.promoCode) {
+    cart.promoCode = null;
+}
+
+// Go to specific step in checkout
+function goToStep(step) {
+    // Validate current step before proceeding
+    if (step > currentStep && !validateCurrentStep()) {
         return;
     }
-    
-    closeModal('cart-modal');
-    openModal('checkout-modal');
-    showCheckoutStep(1);
-    
-    // Update checkout summary
-    const checkoutTotal = document.getElementById('checkout-total');
-    const remainingAmount = document.getElementById('remaining-amount');
+
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById(`step-${step}`).classList.add('active');
+    currentStep = step;
+
+    if (step === 3) {
+        updateOrderReview();
+    }
+}
+
+// Validate current step
+function validateCurrentStep() {
+    switch (currentStep) {
+        case 1:
+            return validateCustomerInfo();
+        case 2:
+            return validatePaymentMethod();
+        default:
+            return true;
+    }
+}
+
+// Validate customer information
+function validateCustomerInfo() {
+    const name = document.getElementById('customer-name').value.trim();
+    const phone = document.getElementById('customer-phone').value.trim();
+    const district = document.getElementById('customer-district').value;
+    const thana = document.getElementById('customer-thana').value;
+    const address = document.getElementById('customer-address').value.trim();
+
+    if (!name || !phone || !district || !thana || !address) {
+        showErrorMessage('Please fill in all customer information fields');
+        return false;
+    }
+
+    return true;
+}
+
+// Validate payment method
+function validatePaymentMethod() {
+    const paymentMethod = document.querySelector('input[name="payment-method"]:checked');
+
+    if (!paymentMethod) {
+        showErrorMessage('Please select a payment method');
+        return false;
+    }
+
+    selectedPaymentMethod = paymentMethod.value;
+
+    // If not cash on delivery, check transaction ID
+    if (selectedPaymentMethod !== 'cash') {
+        const transactionId = document.getElementById('transaction-id').value.trim();
+        if (!transactionId) {
+            showErrorMessage('Please enter transaction ID for advance payment');
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Setup payment method selection
+function setupPaymentMethodSelection() {
+    const paymentCards = document.querySelectorAll('.payment-method-card');
+    const advanceSection = document.getElementById('advance-payment-section');
+
+    paymentCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const radio = card.querySelector('input[type="radio"]');
+            radio.checked = true;
+
+            // Update card selection visual
+            paymentCards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+
+            // Show/hide advance payment section
+            if (radio.value === 'cash') {
+                advanceSection.style.display = 'none';
+            } else {
+                advanceSection.style.display = 'block';
+            }
+
+            selectedPaymentMethod = radio.value;
+        });
+    });
+}
+
+// Update order review
+function updateOrderReview() {
+    // Update checkout items
     const checkoutItems = document.getElementById('checkout-items');
-    
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    checkoutTotal.textContent = total;
-    remainingAmount.textContent = total - 100;
-    
     checkoutItems.innerHTML = cart.map(item => `
         <div class="checkout-item">
             <span>${item.name} x ${item.quantity}</span>
             <span>৳${item.price * item.quantity}</span>
         </div>
     `).join('');
+
+    // Calculate totals
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    let discount = 0;
+
+    if (cart.promoCode) {
+        if (cart.promoCode.type === 'percentage') {
+            discount = Math.round(subtotal * cart.promoCode.discount / 100);
+        } else if (cart.promoCode.type === 'fixed') {
+            discount = cart.promoCode.discount;
+        }
+    }
+
+    const deliveryFee = calculateDeliveryFee();
+    const total = subtotal - discount + deliveryFee;
+
+    // Update totals display
+    document.getElementById('checkout-subtotal').textContent = subtotal;
+    document.getElementById('checkout-discount').textContent = discount;
+    document.getElementById('checkout-delivery-fee').textContent = deliveryFee;
+    document.getElementById('checkout-total').textContent = total;
+
+    // Show/hide promo discount row
+    const promoDiscountRow = document.getElementById('checkout-promo-discount');
+    if (discount > 0) {
+        promoDiscountRow.style.display = 'flex';
+    } else {
+        promoDiscountRow.style.display = 'none';
+    }
+
+    // Update advance payment display
+    const advancePaidRow = document.getElementById('advance-paid-row');
+    const remainingRow = document.getElementById('remaining-row');
+
+    if (selectedPaymentMethod !== 'cash') {
+        advancePaidRow.style.display = 'flex';
+        remainingRow.style.display = 'flex';
+        document.getElementById('remaining-amount').textContent = total - 100;
+    } else {
+        advancePaidRow.style.display = 'none';
+        remainingRow.style.display = 'none';
+    }
+
+    // Update customer summary
+    updateCustomerSummary();
 }
 
-function showCheckoutStep(step) {
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-    document.getElementById(`step-${step}`).classList.add('active');
+// Update customer summary
+function updateCustomerSummary() {
+    const customerSummary = document.getElementById('customer-summary-details');
+    const name = document.getElementById('customer-name').value;
+    const phone = document.getElementById('customer-phone').value;
+    const district = document.getElementById('customer-district').value;
+    const thana = document.getElementById('customer-thana').value;
+    const address = document.getElementById('customer-address').value;
+
+    customerSummary.innerHTML = `
+        <div class="summary-detail">
+            <strong>Name:</strong> ${name}
+        </div>
+        <div class="summary-detail">
+            <strong>Phone:</strong> ${phone}
+        </div>
+        <div class="summary-detail">
+            <strong>Address:</strong> ${address}, ${thana}, ${district}
+        </div>
+        <div class="summary-detail">
+            <strong>Payment Method:</strong> ${selectedPaymentMethod ? selectedPaymentMethod.charAt(0).toUpperCase() + selectedPaymentMethod.slice(1) : 'Not selected'}
+        </div>
+    `;
+}
+
+// Checkout Functions
+function proceedToCheckout() {
+    if (cart.length === 0) {
+        showErrorMessage('Your cart is empty!');
+        return;
+    }
+
+    closeModal('cart-modal');
+    openModal('checkout-modal');
+    goToStep(1); // Start with step 1
+    setupPaymentMethodSelection(); // Enable payment method selection
+    updateOrderReview(); // Update order review with initial state
 }
 
 function verifyPayment() {
-    const transactionId = document.getElementById('transaction-id').value.trim();
-    
-    if (!transactionId) {
-        showErrorMessage('Please enter transaction ID');
-        return;
-    }
-    
-    // Mock payment verification
-    showLoading();
-    
-    setTimeout(() => {
-        hideLoading();
-        showSuccessMessage('Payment verified successfully!');
-        showCheckoutStep(2);
-    }, 2000);
+    // No longer needed
+    goToStep(2);
 }
 
 function placeOrder() {
+    // Validate all steps before placing order
+    if (!validateCurrentStep()) {
+        return;
+    }
+
     const customerName = document.getElementById('customer-name').value.trim();
     const customerPhone = document.getElementById('customer-phone').value.trim();
     const customerDistrict = document.getElementById('customer-district').value;
     const customerThana = document.getElementById('customer-thana').value;
     const customerAddress = document.getElementById('customer-address').value.trim();
     const transactionId = document.getElementById('transaction-id').value.trim();
-    
+    const paymentMethod = selectedPaymentMethod; // Get selected payment method
+
+    // Basic validation
     if (!customerName || !customerPhone || !customerDistrict || !customerThana || !customerAddress) {
-        showErrorMessage('Please fill in all required fields including district and thana');
+        showErrorMessage('Please fill in all required fields');
         return;
     }
-    
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    // Retrieve order details
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    let discount = 0;
+
+    if (cart.promoCode) {
+        if (cart.promoCode.type === 'percentage') {
+            discount = Math.round(subtotal * cart.promoCode.discount / 100);
+        } else if (cart.promoCode.type === 'fixed') {
+            discount = cart.promoCode.discount;
+        }
+    }
+
+    const deliveryFee = calculateDeliveryFee();
+    const total = subtotal - discount + deliveryFee;
     const orderDetails = cart.map(item => `${item.name} x ${item.quantity} = ৳${item.price * item.quantity}`).join('\n');
-    
-    const message = `🛒 *New Order from TryneX*\n\n` +
+
+    // Construct message
+    let message = `🛒 *New Order from TryneX*\n\n` +
         `👤 *Customer Details:*\n` +
         `Name: ${customerName}\n` +
         `Phone: ${customerPhone}\n` +
@@ -712,18 +885,28 @@ function placeOrder() {
         `🏠 *Address:* ${customerAddress}\n\n` +
         `📦 *Order Details:*\n${orderDetails}\n\n` +
         `💰 *Payment Details:*\n` +
-        `Total Amount: ৳${total}\n` +
-        `Advance Paid: ৳100\n` +
-        `Remaining: ৳${total - 100}\n` +
-        `Transaction ID: ${transactionId}\n\n` +
-        `Please confirm this order. Thank you! 🙏`;
-    
+        `Payment Method: ${paymentMethod}\n` +
+        `Subtotal: ৳${subtotal}\n` +
+        `Discount: ৳${discount}\n` +
+        `Delivery Fee: ৳${deliveryFee}\n` +
+        `Total Amount: ৳${total}\n`;
+
+    if (paymentMethod !== 'cash') {
+        message += `Advance Paid: ৳100\n` +
+            `Remaining: ৳${total - 100}\n` +
+            `Transaction ID: ${transactionId}\n\n`;
+    } else {
+        message += `Payment will be collected upon delivery.\n\n`;
+    }
+
+    message += `Please confirm this order. Thank you! 🙏`;
+
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
-    
+
     // Show success notification
     showSuccessNotification();
-    
+
     // Clear cart and close modal
     cart = [];
     updateCartUI();
@@ -731,16 +914,26 @@ function placeOrder() {
     closeModal('checkout-modal');
 }
 
+// Delivery Fee Calculation
+function calculateDeliveryFee() {
+    const district = document.getElementById('customer-district').value;
+    if (district === "Dhaka") {
+        return 80;
+    } else {
+        return 120;
+    }
+}
+
 // WhatsApp Functions
 function orderViaWhatsApp(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
-    
+
     const message = `Hi! I'm interested in ordering:\n\n` +
         `📦 *Product:* ${product.name}\n` +
         `💰 *Price:* ৳${product.price}\n\n` +
         `Please provide more details about availability and delivery. Thank you!`;
-    
+
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
 }
@@ -760,23 +953,23 @@ function loadCartFromStorage() {
 // Form Handlers
 function handleNewsletterSubmit(e) {
     e.preventDefault();
-    
+
     const emailInput = document.getElementById('email-input');
     const email = emailInput.value.trim();
-    
+
     if (!email) {
         showErrorMessage('Please enter a valid email address');
         return;
     }
-    
+
     // Simulate newsletter signup
     showLoading();
-    
+
     setTimeout(() => {
         hideLoading();
         emailInput.value = '';
         document.getElementById('newsletter-success').classList.add('show');
-        
+
         setTimeout(() => {
             document.getElementById('newsletter-success').classList.remove('show');
         }, 3000);
@@ -785,24 +978,24 @@ function handleNewsletterSubmit(e) {
 
 function handleContactSubmit(e) {
     e.preventDefault();
-    
+
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('contact-email').value.trim();
     const message = document.getElementById('message').value.trim();
-    
+
     if (!name || !email || !message) {
         showErrorMessage('Please fill in all fields');
         return;
     }
-    
+
     const whatsappMessage = `📧 *Contact Form Submission*\n\n` +
         `👤 *Name:* ${name}\n` +
         `📧 *Email:* ${email}\n` +
         `💬 *Message:* ${message}`;
-    
+
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
     window.open(whatsappUrl, '_blank');
-    
+
     // Reset form
     e.target.reset();
     showSuccessMessage('Message sent! We will get back to you soon.');
@@ -853,13 +1046,13 @@ function showSuccessMessage(message) {
         transform: translateX(100%);
         transition: transform 0.3s ease;
     `;
-    
+
     document.body.appendChild(successDiv);
-    
+
     setTimeout(() => {
         successDiv.style.transform = 'translateX(0)';
     }, 100);
-    
+
     setTimeout(() => {
         successDiv.style.transform = 'translateX(100%)';
         setTimeout(() => {
@@ -886,13 +1079,13 @@ function showErrorMessage(message) {
         transform: translateX(100%);
         transition: transform 0.3s ease;
     `;
-    
+
     document.body.appendChild(errorDiv);
-    
+
     setTimeout(() => {
         errorDiv.style.transform = 'translateX(0)';
     }, 100);
-    
+
     setTimeout(() => {
         errorDiv.style.transform = 'translateX(100%)';
         setTimeout(() => {
@@ -1002,14 +1195,14 @@ function initializeDistricts() {
 function updateThanas() {
     const districtSelect = document.getElementById('customer-district');
     const thanaSelect = document.getElementById('customer-thana');
-    
+
     if (!districtSelect || !thanaSelect) return;
-    
+
     const selectedDistrict = districtSelect.value;
-    
+
     // Clear existing thanas
     thanaSelect.innerHTML = '<option value="">Select Thana</option>';
-    
+
     if (selectedDistrict && bangladeshLocations[selectedDistrict]) {
         bangladeshLocations[selectedDistrict].forEach(thana => {
             const option = document.createElement('option');
@@ -1025,7 +1218,7 @@ function showSuccessNotification() {
     const notification = document.getElementById('success-notification');
     if (notification) {
         notification.classList.add('show');
-        
+
         // Auto-hide after 5 seconds
         setTimeout(() => {
             closeNotification();
@@ -1061,3 +1254,203 @@ window.scrollToSection = scrollToSection;
 window.updateThanas = updateThanas;
 window.showSuccessNotification = showSuccessNotification;
 window.closeNotification = closeNotification;
+
+// Modal structure
+
+document.body.insertAdjacentHTML('beforeend', `
+    <div class="modal" id="cart-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Shopping Cart</h3>
+                <button class="modal-close" onclick="closeModal('cart-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="cart-empty" id="cart-empty">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>Your cart is currently empty.</p>
+                </div>
+
+                <div class="cart-items" id="cart-items">
+                    <!-- Cart items will be dynamically added here -->
+                </div>
+            </div>
+
+            <div class="modal-footer" id="cart-footer">
+                <div class="cart-total">
+                    Total: ৳<span id="cart-total">0</span>
+                </div>
+                <button class="checkout-btn" onclick="proceedToCheckout()">
+                    Proceed to Checkout
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="checkout-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Checkout - Order Confirmation</h3>
+                <button class="modal-close" onclick="closeModal('checkout-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="checkout-steps">
+
+                    <!-- Step 1: Customer Information -->
+                    <div class="step active" id="step-1">
+                        <h4>Step 1: Customer Information</h4>
+                        <div class="customer-form">
+                            <div class="form-group">
+                                <label for="customer-name">Full Name:</label>
+                                <input type="text" id="customer-name" placeholder="Enter your full name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-phone">Phone Number:</label>
+                                <input type="tel" id="customer-phone" placeholder="Enter your phone number" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-district">District:</label>
+                                <select id="customer-district" required onchange="updateThanas()">
+                                    <option value="">Select District</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-thana">Thana/Upazila:</label>
+                                <select id="customer-thana" required>
+                                    <option value="">Select Thana</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-address">Detailed Address:</label>
+                                <textarea id="customer-address" placeholder="House/Road/Area details" rows="2" required></textarea>
+                            </div>
+                        </div>
+
+                        <button class="next-btn" onclick="goToStep(2)">
+                            Next: Payment Method
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Step 2: Payment Method -->
+                    <div class="step" id="step-2">
+                        <h4>Step 2: Payment Method</h4>
+                        <p>Select your payment method:</p>
+
+                        <div class="payment-methods-grid">
+                            <label class="payment-method-card">
+                                <input type="radio" name="payment-method" value="bkash">
+                                <div class="payment-icon bkash">bKash</div>
+                            </label>
+
+                            <label class="payment-method-card">
+                                <input type="radio" name="payment-method" value="nagad">
+                                <div class="payment-icon nagad">Nagad</div>
+                            </label>
+
+                            <label class="payment-method-card">
+                                <input type="radio" name="payment-method" value="upay">
+                                <div class="payment-icon upay">Upay</div>
+                            </label>
+
+                            <label class="payment-method-card">
+                                <input type="radio" name="payment-method" value="cash">
+                                <div class="payment-icon cash">Cash on Delivery</div>
+                            </label>
+                        </div>
+
+                        <!-- Advance Payment Section -->
+                        <div class="payment-info" id="advance-payment-section">
+                            <p>Please pay 100 BDT advance via Bkash or Nagad to confirm your order</p>
+                            <div class="payment-instructions">
+                                <ol>
+                                    <li>Send 100 BDT to the number above</li>
+                                    <li>Copy the transaction ID</li>
+                                    <li>Paste it in the field below</li>
+                                </ol>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="transaction-id">Transaction ID:</label>
+                                <input type="text" id="transaction-id" placeholder="Enter transaction ID">
+                            </div>
+                        </div>
+
+                        <button class="prev-btn" onclick="goToStep(1)">
+                            <i class="fas fa-arrow-left"></i>
+                            Previous: Customer Info
+                        </button>
+
+                        <button class="next-btn" onclick="goToStep(3)">
+                            Next: Review Order
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Step 3: Review Order -->
+                    <div class="step" id="step-3">
+                        <h4>Step 3: Review Order</h4>
+                        <div class="customer-summary">
+                            <h5>Customer Information:</h5>
+                            <div id="customer-summary-details">
+                                <!-- Customer details will be added here -->
+                            </div>
+                        </div>
+
+                        <div class="order-summary">
+                            <h5>Order Summary:</h5>
+                            <div id="checkout-items">
+                                <!-- Checkout items will be added here -->
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Subtotal:</span>
+                                <span>৳<span id="checkout-subtotal">0</span></span>
+                            </div>
+
+                            <div class="summary-row" id="checkout-promo-discount">
+                                <span>Promo Discount:</span>
+                                <span>৳<span id="checkout-discount">0</span></span>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Delivery Fee:</span>
+                                <span>৳<span id="checkout-delivery-fee">0</span></span>
+                            </div>
+
+                            <div class="summary-row" id="advance-paid-row">
+                                <span>Advance Paid:</span>
+                                <span>৳100</span>
+                            </div>
+
+                            <div class="summary-row" id="remaining-row">
+                                <span>Remaining:</span>
+                                <span>৳<span id="remaining-amount">0</span></span>
+                            </div>
+
+                            <div class="order-total">
+                                <strong>Total: ৳<span id="checkout-total">0</span></strong>
+                            </div>
+                        </div>
+
+                        <button class="prev-btn" onclick="goToStep(2)">
+                            <i class="fas fa-arrow-left"></i>
+                            Previous: Payment
+                        </button>
+
+                        <button class="place-order-btn" onclick="placeOrder()">
+                            Place Order
+                            <i class="fas fa-check-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+`);
