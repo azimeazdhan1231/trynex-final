@@ -382,39 +382,77 @@ function setupEventListeners() {
     const searchBtn = document.getElementById('search-btn');
     const searchClose = document.getElementById('search-close');
 
-    searchBtn.addEventListener('click', () => {
-        searchOverlay.classList.add('active');
-        searchInput.focus();
-    });
+    if (searchBtn) {
+        searchBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            searchOverlay.classList.add('active');
+            searchInput.focus();
+        });
+    }
 
-    searchClose.addEventListener('click', () => {
-        searchOverlay.classList.remove('active');
-        searchInput.value = '';
-    });
+    if (searchClose) {
+        searchClose.addEventListener('click', () => {
+            searchOverlay.classList.remove('active');
+            searchInput.value = '';
+        });
+    }
 
-    searchInput.addEventListener('input', handleSearch);
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+    }
+
+    // Close search overlay when clicking outside
+    if (searchOverlay) {
+        searchOverlay.addEventListener('click', (e) => {
+            if (e.target === searchOverlay) {
+                searchOverlay.classList.remove('active');
+                searchInput.value = '';
+            }
+        });
+    }
+
+    // Close search on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (searchOverlay && searchOverlay.classList.contains('active')) {
+                searchOverlay.classList.remove('active');
+                searchInput.value = '';
+            }
+            closeAllModals();
+        }
+    });
 
     // Cart
     const cartBtn = document.getElementById('cart-btn');
-    cartBtn.addEventListener('click', () => openModal('cart-modal'));
+    if (cartBtn) {
+        cartBtn.addEventListener('click', () => openModal('cart-modal'));
+    }
 
     // Category filter
     const categorySelect = document.getElementById('category-select');
-    categorySelect.addEventListener('change', (e) => {
-        filterByCategory(e.target.value);
-    });
+    if (categorySelect) {
+        categorySelect.addEventListener('change', (e) => {
+            filterByCategory(e.target.value);
+        });
+    }
 
     // Load more products
     const loadMoreBtn = document.getElementById('load-more-btn');
-    loadMoreBtn.addEventListener('click', loadMoreProducts);
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', loadMoreProducts);
+    }
 
     // Newsletter
     const newsletterForm = document.getElementById('newsletter-form');
-    newsletterForm.addEventListener('submit', handleNewsletterSubmit);
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', handleNewsletterSubmit);
+    }
 
     // Contact form
     const contactForm = document.getElementById('contact-form');
-    contactForm.addEventListener('submit', handleContactSubmit);
+    if (contactForm) {
+        contactForm.addEventListener('submit', handleContactSubmit);
+    }
 
     // Header scroll effect
     window.addEventListener('scroll', handleScroll);
@@ -423,13 +461,6 @@ function setupEventListeners() {
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal')) {
             closeModal(e.target.id);
-        }
-    });
-
-    // Keyboard navigation
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            closeAllModals();
         }
     });
 }
@@ -618,43 +649,75 @@ function updateCartUI() {
     const cartEmpty = document.getElementById('cart-empty');
     const cartFooter = document.getElementById('cart-footer');
     const cartTotal = document.getElementById('cart-total');
+    const cartSubtotal = document.getElementById('cart-subtotal');
+    const promoSection = document.getElementById('promo-section');
+    const instructionsSection = document.getElementById('instructions-section');
 
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
+    let discount = 0;
+    if (cart.promoCode) {
+        if (cart.promoCode.type === 'percentage') {
+            discount = Math.round(subtotal * cart.promoCode.discount / 100);
+        } else if (cart.promoCode.type === 'fixed') {
+            discount = cart.promoCode.discount;
+        }
+    }
+    
+    const deliveryFee = 80; // Default delivery fee
+    const totalPrice = subtotal - discount + deliveryFee;
 
-    cartCount.textContent = totalItems;
-    cartTotal.textContent = totalPrice;
+    if (cartCount) cartCount.textContent = totalItems;
+    if (cartTotal) cartTotal.textContent = totalPrice;
+    if (cartSubtotal) cartSubtotal.textContent = subtotal;
 
     if (cart.length === 0) {
-        cartItems.style.display = 'none';
-        cartEmpty.style.display = 'block';
-        cartFooter.style.display = 'none';
+        if (cartItems) cartItems.style.display = 'none';
+        if (cartEmpty) cartEmpty.style.display = 'block';
+        if (cartFooter) cartFooter.style.display = 'none';
+        if (promoSection) promoSection.style.display = 'none';
+        if (instructionsSection) instructionsSection.style.display = 'none';
     } else {
-        cartItems.style.display = 'block';
-        cartEmpty.style.display = 'none';
-        cartFooter.style.display = 'block';
+        if (cartItems) cartItems.style.display = 'block';
+        if (cartEmpty) cartEmpty.style.display = 'none';
+        if (cartFooter) cartFooter.style.display = 'block';
+        if (promoSection) promoSection.style.display = 'block';
+        if (instructionsSection) instructionsSection.style.display = 'block';
 
-        cartItems.innerHTML = cart.map(item => `
-            <div class="cart-item">
-                <img src="${item.image}" alt="${item.name}" class="cart-item-image" onerror="this.src='https://via.placeholder.com/80x80/d4af37/000000?text=${encodeURIComponent(item.name)}'">
-                <div class="cart-item-info">
-                    <div class="cart-item-name">${item.name}</div>
-                    <div class="cart-item-price">৳${item.price}</div>
-                    <div class="cart-item-controls">
-                        <button class="quantity-btn" onclick="updateQuantity(${item.id}, -1)">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <span class="quantity">${item.quantity}</span>
-                        <button class="quantity-btn" onclick="updateQuantity(${item.id}, 1)">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                        <button class="remove-btn" onclick="removeFromCart(${item.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
+        if (cartItems) {
+            cartItems.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <img src="${item.image}" alt="${item.name}" class="cart-item-image" onerror="this.src='https://via.placeholder.com/80x80/d4af37/000000?text=${encodeURIComponent(item.name)}'">
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${item.name}</div>
+                        <div class="cart-item-price">৳${item.price}</div>
+                        <div class="cart-item-controls">
+                            <button class="quantity-btn" onclick="updateQuantity(${item.id}, -1)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="quantity">${item.quantity}</span>
+                            <button class="quantity-btn" onclick="updateQuantity(${item.id}, 1)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button class="remove-btn" onclick="removeFromCart(${item.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            `).join('');
+        }
+    }
+
+    // Update discount display
+    const promoDiscountRow = document.getElementById('promo-discount');
+    const discountAmount = document.getElementById('discount-amount');
+    if (discount > 0) {
+        if (promoDiscountRow) promoDiscountRow.style.display = 'flex';
+        if (discountAmount) discountAmount.textContent = discount;
+    } else {
+        if (promoDiscountRow) promoDiscountRow.style.display = 'none';
     }
 }
 
@@ -1404,6 +1467,75 @@ window.copyOrderId = copyOrderId;
 window.sendOrderViaWhatsApp = sendOrderViaWhatsApp;
 window.closeOrderConfirmation = closeOrderConfirmation;
 window.goToStep = goToStep;
+
+// Add order confirmation modal to DOM
+function addOrderConfirmationModal() {
+    const modalHTML = `
+        <!-- Order Confirmation Modal -->
+        <div class="modal" id="order-confirmation-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Order Placed Successfully!</h3>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="order-success">
+                        <div class="success-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h4>Thank you for your order!</h4>
+                        <p>Your order has been placed successfully and is now being processed.</p>
+                        
+                        <div class="order-details">
+                            <div class="order-info">
+                                <strong>Order ID:</strong>
+                                <span id="order-id-display"></span>
+                                <button class="copy-btn" onclick="copyOrderId()">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="tracking-info">
+                                <p>You can track your order status using the Order ID above.</p>
+                                <a href="track-order.html" class="track-order-btn">
+                                    <i class="fas fa-truck"></i>
+                                    Track Your Order
+                                </a>
+                            </div>
+                            
+                            <div class="contact-info">
+                                <p>We will contact you soon to confirm delivery details.</p>
+                                <div class="contact-buttons">
+                                    <a href="https://wa.me/01747292277" target="_blank" class="whatsapp-contact">
+                                        <i class="fab fa-whatsapp"></i>
+                                        Contact on WhatsApp
+                                    </a>
+                                    <button class="send-whatsapp-btn" onclick="sendOrderViaWhatsApp()">
+                                        <i class="fab fa-whatsapp"></i>
+                                        Send via WhatsApp (Optional)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button class="continue-shopping-btn" onclick="closeOrderConfirmation()">
+                        Continue Shopping
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// Initialize order confirmation modal
+document.addEventListener('DOMContentLoaded', function() {
+    addOrderConfirmationModal();
+});
 
 // Modal structure
 

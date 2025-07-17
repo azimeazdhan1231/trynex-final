@@ -228,14 +228,30 @@ function displaySearchSuggestions(suggestions) {
         return;
     }
     
-    suggestionsContainer.innerHTML = suggestions.map(suggestion => `
-        <div class="suggestion-item" onclick="selectSuggestion('${suggestion.text}', '${suggestion.type}')">
+    suggestionsContainer.innerHTML = suggestions.map((suggestion, index) => `
+        <div class="suggestion-item" onclick="selectSuggestion('${suggestion.text.replace(/'/g, "\\'")}', '${suggestion.type}')">
             <div class="suggestion-main">${suggestion.text}</div>
             ${suggestion.subtext ? `<div class="suggestion-sub">${suggestion.subtext}</div>` : ''}
         </div>
     `).join('');
     
     suggestionsContainer.classList.add('show');
+    
+    // Add click outside to close
+    setTimeout(() => {
+        document.addEventListener('click', handleOutsideClick);
+    }, 100);
+}
+
+// Handle clicks outside search suggestions
+function handleOutsideClick(e) {
+    const searchContainer = document.querySelector('.search-container');
+    const suggestionsContainer = document.getElementById('search-suggestions');
+    
+    if (searchContainer && !searchContainer.contains(e.target)) {
+        clearSearchSuggestions();
+        document.removeEventListener('click', handleOutsideClick);
+    }
 }
 
 // Clear search suggestions
@@ -542,6 +558,14 @@ function applyPromoCode() {
     
     // Clear the input
     promoInput.value = '';
+}
+
+// Initialize promo codes if not loaded
+if (!window.cart) {
+    window.cart = [];
+}
+if (!window.cart.promoCode) {
+    window.cart.promoCode = null;
 }
 
 // Show promo status

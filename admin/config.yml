@@ -1,103 +1,164 @@
+
 backend:
   name: git-gateway
   branch: main
 
-media_folder: "assets/images"
-public_folder: "/assets/images"
+media_folder: "EcommercePro/uploads"
+public_folder: "/uploads"
 
 collections:
   - name: "products"
     label: "Products"
-    folder: "_products"
+    label_singular: "Product"
+    folder: "EcommercePro/_products"
     create: true
     slug: "{{slug}}"
     fields:
-      - {label: "Product ID", name: "id", widget: "number"}
-      - {label: "Product Name", name: "name", widget: "string"}
-      - {label: "Product Name (Bengali)", name: "name_bn", widget: "string"}
-      - {label: "Price (BDT)", name: "price", widget: "number"}
-      - {label: "Category", name: "category", widget: "select", options: ["Mugs", "T-Shirts", "Keychains", "Water Bottles", "Gift for Him", "Gift for Her", "Gift for Parents", "Gifts for Babies", "For Couple", "Premium Luxury Gift Hampers", "Chocolates & Flowers"]}
-      - {label: "Image URL", name: "image", widget: "string"}
-      - {label: "Description", name: "description", widget: "text"}
-      - {label: "Description (Bengali)", name: "description_bn", widget: "text"}
-      - {label: "Badge", name: "badge", widget: "string", required: false}
-      - {label: "Featured", name: "featured", widget: "boolean", default: false}
+      - {label: "Product ID", name: "id", widget: "number", required: true}
+      - {label: "Product Name", name: "name", widget: "string", required: true}
+      - {label: "Product Name (Bengali)", name: "name_bn", widget: "string", required: true}
+      - {label: "Price (BDT)", name: "price", widget: "number", required: true}
+      - {label: "Category", name: "category", widget: "select", options: ["Mugs", "T-Shirts", "Keychains", "Water Bottles", "Gift for Him", "Gift for Her", "Gift for Parents", "Gifts for Babies", "For Couple", "Premium Luxury Gift Hampers", "Chocolates & Flowers"], required: true}
+      - {label: "Product Image", name: "image", widget: "image", required: true}
+      - {label: "Description", name: "description", widget: "text", required: true}
+      - {label: "Description (Bengali)", name: "description_bn", widget: "text", required: true}
+      - {label: "Featured Product", name: "featured", widget: "boolean", default: false}
       - {label: "In Stock", name: "in_stock", widget: "boolean", default: true}
+      - {label: "Product Badge", name: "badge", widget: "string", required: false}
+      - {label: "Tags", name: "tags", widget: "list", required: false}
 
   - name: "categories"
     label: "Categories"
-    folder: "_categories"
+    label_singular: "Category"
+    folder: "EcommercePro/_categories"
     create: true
     slug: "{{slug}}"
     fields:
-      - {label: "Category ID", name: "id", widget: "number"}
-      - {label: "Category Name", name: "name", widget: "string"}
-      - {label: "Category Name (Bengali)", name: "name_bn", widget: "string"}
-      - {label: "Icon Class", name: "icon", widget: "string"}
-      - {label: "Description", name: "description", widget: "text"}
+      - {label: "Category ID", name: "id", widget: "number", required: true}
+      - {label: "Category Name", name: "name", widget: "string", required: true}
+      - {label: "Category Name (Bengali)", name: "name_bn", widget: "string", required: true}
+      - {label: "Icon (Font Awesome class)", name: "icon", widget: "string", required: true, hint: "e.g., fas fa-coffee"}
+      - {label: "Description", name: "description", widget: "text", required: true}
+      - {label: "Category Image", name: "image", widget: "image", required: false}
+      - {label: "Sort Order", name: "sort_order", widget: "number", default: 0}
 
   - name: "orders"
     label: "Orders"
-    folder: "_orders"
+    label_singular: "Order"
+    folder: "EcommercePro/_orders"
     create: true
-    slug: "{{slug}}"
+    slug: "order-{{fields.order_id}}"
     fields:
-      - {label: "Order ID", name: "order_id", widget: "string"}
-      - {label: "Customer Name", name: "customer_name", widget: "string"}
-      - {label: "Customer Phone", name: "customer_phone", widget: "string"}
-      - {label: "Customer Address", name: "customer_address", widget: "text"}
-      - {label: "District", name: "district", widget: "string"}
-      - {label: "Thana", name: "thana", widget: "string"}
-      - {label: "Order Items", name: "items", widget: "text"}
-      - {label: "Total Amount", name: "total", widget: "number"}
-      - {label: "Payment Method", name: "payment_method", widget: "select", options: ["bkash", "nagad", "rocket", "cash"]}
+      - {label: "Order ID", name: "order_id", widget: "string", required: true}
+      - {label: "Customer Name", name: "customer_name", widget: "string", required: true}
+      - {label: "Customer Phone", name: "customer_phone", widget: "string", required: true}
+      - {label: "Customer Email", name: "customer_email", widget: "string", required: false}
+      - {label: "Delivery Address", name: "delivery_address", widget: "text", required: true}
+      - {label: "District", name: "district", widget: "string", required: true}
+      - {label: "Thana", name: "thana", widget: "string", required: true}
+      - {label: "Order Items", name: "items", widget: "text", required: true, hint: "JSON format of ordered items"}
+      - {label: "Total Amount", name: "total", widget: "number", required: true}
+      - {label: "Subtotal", name: "subtotal", widget: "number", required: true}
+      - {label: "Discount", name: "discount", widget: "number", default: 0}
+      - {label: "Delivery Fee", name: "delivery_fee", widget: "number", required: true}
+      - {label: "Payment Method", name: "payment_method", widget: "select", options: ["bkash", "nagad", "rocket", "cash"], required: true}
       - {label: "Transaction ID", name: "transaction_id", widget: "string", required: false}
       - {label: "Order Status", name: "status", widget: "select", options: ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"], default: "pending"}
-      - {label: "Payment Status", name: "payment_status", widget: "select", options: ["pending", "paid", "partial"], default: "pending"}
-      - {label: "Order Date", name: "date", widget: "datetime"}
-      - {label: "Special Instructions", name: "instructions", widget: "text", required: false}
+      - {label: "Payment Status", name: "payment_status", widget: "select", options: ["pending", "partial", "paid", "refunded"], default: "pending"}
+      - {label: "Special Instructions", name: "special_instructions", widget: "text", required: false}
+      - {label: "Order Date", name: "date", widget: "datetime", required: true}
+      - {label: "Promo Code Used", name: "promo_code", widget: "string", required: false}
       - {label: "Admin Notes", name: "admin_notes", widget: "text", required: false}
 
   - name: "promos"
     label: "Promo Codes"
-    folder: "_promos"
+    label_singular: "Promo Code"
+    folder: "EcommercePro/_promos"
     create: true
-    slug: "{{slug}}"
+    slug: "promo-{{fields.code}}"
     fields:
-      - {label: "Promo Code", name: "code", widget: "string"}
-      - {label: "Discount Amount", name: "discount", widget: "number"}
-      - {label: "Discount Type", name: "type", widget: "select", options: ["percentage", "fixed", "shipping"]}
-      - {label: "Description", name: "description", widget: "string"}
-      - {label: "Active", name: "active", widget: "boolean", default: true}
-      - {label: "Minimum Order", name: "min_order", widget: "number", required: false}
+      - {label: "Promo Code", name: "code", widget: "string", required: true, pattern: ["^[A-Z0-9]+$", "Use uppercase letters and numbers only"]}
+      - {label: "Description", name: "description", widget: "string", required: true}
+      - {label: "Discount Type", name: "type", widget: "select", options: ["percentage", "fixed", "shipping"], required: true}
+      - {label: "Discount Value", name: "discount", widget: "number", required: true, hint: "For percentage: enter number (e.g., 10 for 10%), for fixed: enter amount in BDT"}
+      - {label: "Minimum Order Amount", name: "min_order", widget: "number", required: false}
+      - {label: "Maximum Discount", name: "max_discount", widget: "number", required: false}
       - {label: "Expiry Date", name: "expiry", widget: "datetime", required: false}
       - {label: "Usage Limit", name: "usage_limit", widget: "number", required: false}
+      - {label: "Used Count", name: "used_count", widget: "number", default: 0}
+      - {label: "Active", name: "active", widget: "boolean", default: true}
 
   - name: "banners"
     label: "Banners & Offers"
-    folder: "_banners"
+    label_singular: "Banner"
+    folder: "EcommercePro/_banners"
     create: true
-    slug: "{{slug}}"
+    slug: "banner-{{slug}}"
     fields:
-      - {label: "Banner Title", name: "title", widget: "string"}
-      - {label: "Banner Text", name: "text", widget: "text"}
-      - {label: "Banner Type", name: "type", widget: "select", options: ["popup", "header", "banner", "notification"]}
-      - {label: "Background Color", name: "bg_color", widget: "string", default: "#d4af37"}
-      - {label: "Text Color", name: "text_color", widget: "string", default: "#ffffff"}
-      - {label: "Button Text", name: "button_text", widget: "string", required: false}
-      - {label: "Button Link", name: "button_link", widget: "string", required: false}
+      - {label: "Banner Title", name: "title", widget: "string", required: true}
+      - {label: "Banner Type", name: "type", widget: "select", options: ["hero", "popup", "notification", "promotional"], required: true}
+      - {label: "Banner Image", name: "image", widget: "image", required: false}
+      - {label: "Banner Content", name: "content", widget: "markdown", required: true}
+      - {label: "Call to Action Text", name: "cta_text", widget: "string", required: false}
+      - {label: "Call to Action Link", name: "cta_link", widget: "string", required: false}
+      - {label: "Background Color", name: "bg_color", widget: "color", required: false, default: "#d4af37"}
+      - {label: "Text Color", name: "text_color", widget: "color", required: false, default: "#ffffff"}
+      - {label: "Start Date", name: "start_date", widget: "datetime", required: true}
+      - {label: "End Date", name: "end_date", widget: "datetime", required: false}
       - {label: "Active", name: "active", widget: "boolean", default: true}
-      - {label: "Show on Pages", name: "pages", widget: "select", multiple: true, options: ["home", "products", "all"]}
-      - {label: "Auto Close (seconds)", name: "auto_close", widget: "number", default: 10, required: false}
+      - {label: "Show on Mobile", name: "show_mobile", widget: "boolean", default: true}
+      - {label: "Priority", name: "priority", widget: "number", default: 1, hint: "Higher number = higher priority"}
 
   - name: "settings"
-    label: "Settings"
+    label: "Site Settings"
     files:
-      - label: "Site Settings"
-        name: "site"
-        file: "_data/homepage.yml"
+      - label: "General Settings"
+        name: "general"
+        file: "EcommercePro/_data/settings.yml"
         fields:
-          - { label: "Site Title", name: "title", widget: "string" }
-          - { label: "Site Description", name: "description", widget: "text" }
-          - { label: "WhatsApp Number", name: "whatsapp", widget: "string" }
-          - { label: "Payment Number", name: "payment", widget: "string" }
+          - {label: "Site Title", name: "site_title", widget: "string", default: "TryneX"}
+          - {label: "Site Description", name: "site_description", widget: "text", default: "Premium Gifts & Lifestyle Products"}
+          - {label: "WhatsApp Number", name: "whatsapp_number", widget: "string", default: "01747292277"}
+          - {label: "Payment Number (bKash)", name: "bkash_number", widget: "string", default: "01747292277"}
+          - {label: "Payment Number (Nagad)", name: "nagad_number", widget: "string", default: "01747292277"}
+          - {label: "Payment Number (Rocket)", name: "rocket_number", widget: "string", default: "01747292277"}
+          - {label: "Business Hours", name: "business_hours", widget: "string", default: "9:00 AM - 10:00 PM (Daily)"}
+          - {label: "Advance Payment Amount", name: "advance_payment", widget: "number", default: 100}
+          - {label: "Dhaka Delivery Fee", name: "dhaka_delivery_fee", widget: "number", default: 80}
+          - {label: "Outside Dhaka Delivery Fee", name: "outside_dhaka_fee", widget: "number", default: 120}
+          - {label: "Free Shipping Minimum", name: "free_shipping_min", widget: "number", default: 2000}
+          - {label: "Currency Symbol", name: "currency", widget: "string", default: "৳"}
+
+      - label: "Homepage Content"
+        name: "homepage"
+        file: "EcommercePro/_data/homepage.yml"
+        fields:
+          - label: "Hero Slides"
+            name: "hero_slides"
+            widget: "list"
+            fields:
+              - {label: "Title", name: "title", widget: "string"}
+              - {label: "Subtitle", name: "subtitle", widget: "text"}
+              - {label: "Button Text", name: "button_text", widget: "string"}
+              - {label: "Button Link", name: "button_link", widget: "string"}
+              - {label: "Background Image", name: "image", widget: "image"}
+          - label: "Testimonials"
+            name: "testimonials"
+            widget: "list"
+            fields:
+              - {label: "Customer Name", name: "name", widget: "string"}
+              - {label: "Review Text", name: "review", widget: "text"}
+              - {label: "Rating", name: "rating", widget: "number", min: 1, max: 5}
+              - {label: "Verified", name: "verified", widget: "boolean", default: true}
+
+      - label: "Contact Information"
+        name: "contact"
+        file: "EcommercePro/_data/contact.yml"
+        fields:
+          - {label: "Business Name", name: "business_name", widget: "string", default: "TryneX"}
+          - {label: "Address", name: "address", widget: "text", required: false}
+          - {label: "Phone", name: "phone", widget: "string", default: "01747292277"}
+          - {label: "Email", name: "email", widget: "string", required: false}
+          - {label: "Facebook URL", name: "facebook", widget: "string", required: false}
+          - {label: "Instagram URL", name: "instagram", widget: "string", required: false}
+          - {label: "WhatsApp URL", name: "whatsapp", widget: "string", default: "https://wa.me/01747292277"}

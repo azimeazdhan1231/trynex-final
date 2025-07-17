@@ -29,8 +29,8 @@
                 </div>
                 
                 <ul class="nav-menu" id="nav-menu">
-                    <li><a href="#home" class="nav-link">Home</a></li>
-                    <li><a href="products.html" class="nav-link">Products</a></li>
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="products.html" class="nav-link">All Products</a></li>
                     <li><a href="#categories" class="nav-link">Categories</a></li>
                     <li><a href="track-order.html" class="nav-link">Track Order</a></li>
                     <li><a href="#contact" class="nav-link">Contact</a></li>
@@ -380,11 +380,41 @@
                     <p>Your cart is empty</p>
                     <button class="cta-btn" onclick="closeModal('cart-modal')">Continue Shopping</button>
                 </div>
+
+                <!-- Promo Code Section -->
+                <div class="promo-section" id="promo-section" style="display: none;">
+                    <div class="promo-input-container">
+                        <input type="text" id="promo-code" placeholder="Enter promo code (e.g., WELCOME10)">
+                        <button class="apply-promo-btn" id="apply-promo-btn" onclick="applyPromoCode()">Apply</button>
+                    </div>
+                    <div class="promo-status" id="promo-status"></div>
+                </div>
+                
+                <!-- Special Instructions -->
+                <div class="instructions-section" id="instructions-section" style="display: none;">
+                    <label for="special-instructions-cart">Any Special Instructions:</label>
+                    <textarea id="special-instructions-cart" placeholder="Enter any special requests or instructions for your order..." rows="3"></textarea>
+                </div>
             </div>
             
             <div class="modal-footer" id="cart-footer">
-                <div class="cart-total">
-                    <h4>Total: ৳<span id="cart-total">0</span></h4>
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span>৳<span id="cart-subtotal">0</span></span>
+                    </div>
+                    <div class="summary-row promo-discount" id="promo-discount" style="display: none;">
+                        <span>Discount:</span>
+                        <span class="discount-amount">-৳<span id="discount-amount">0</span></span>
+                    </div>
+                    <div class="summary-row delivery-fee">
+                        <span>Delivery Fee:</span>
+                        <span>৳<span id="delivery-fee">80</span></span>
+                    </div>
+                    <div class="summary-row total">
+                        <span><strong>Total:</strong></span>
+                        <span><strong>৳<span id="cart-total">0</span></strong></span>
+                    </div>
                 </div>
                 <button class="checkout-btn" id="checkout-btn" onclick="proceedToCheckout()">
                     Proceed to Checkout

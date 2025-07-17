@@ -1672,7 +1672,7 @@ body {
     box-shadow: var(--shadow-medium);
     max-height: 300px;
     overflow-y: auto;
-    z-index: 10;
+    z-index: 1001;
     display: none;
 }
 
@@ -1693,6 +1693,17 @@ body {
 
 .suggestion-item:last-child {
     border-bottom: none;
+}
+
+.suggestion-main {
+    font-weight: 600;
+    color: var(--primary-black);
+    margin-bottom: 0.25rem;
+}
+
+.suggestion-sub {
+    font-size: 0.9rem;
+    color: rgba(26, 26, 26, 0.6);
 }
 
 /* Promo Code Section */
