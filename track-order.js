@@ -329,3 +329,295 @@ function loadOrdersFromStorage() {
 // Export functions for global access
 window.trackOrder = trackOrder;
 window.clearTrackingForm = clearTrackingForm;
+// Track Order JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    setupTrackingEventListeners();
+    loadCartFromStorage();
+    updateCartUI();
+});
+
+function setupTrackingEventListeners() {
+    const orderInput = document.getElementById('order-id-input');
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('nav-menu');
+
+    // Enter key support for tracking
+    if (orderInput) {
+        orderInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                trackOrder();
+            }
+        });
+    }
+
+    // Mobile menu toggle
+    if (hamburger && navMenu) {
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!navMenu.contains(e.target) && !hamburger.contains(e.target)) {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            }
+        });
+    }
+
+    // Cart functionality
+    const cartBtn = document.getElementById('cart-btn');
+    if (cartBtn) {
+        cartBtn.addEventListener('click', () => {
+            // Redirect to products page for cart functionality
+            window.location.href = 'products.html';
+        });
+    }
+}
+
+// Track order function
+function trackOrder() {
+    const orderIdInput = document.getElementById('order-id-input');
+    const orderId = orderIdInput.value.trim().toUpperCase();
+
+    if (!orderId) {
+        showErrorMessage('Please enter an order ID');
+        return;
+    }
+
+    if (!isValidOrderId(orderId)) {
+        showErrorMessage('Please enter a valid order ID (e.g., TRX-ABC123-XYZ)');
+        return;
+    }
+
+    showLoading();
+
+    // Simulate loading time
+    setTimeout(() => {
+        hideLoading();
+        searchOrder(orderId);
+    }, 1500);
+}
+
+// Validate order ID format
+function isValidOrderId(orderId) {
+    const pattern = /^TRX-[A-Z0-9]+-[A-Z0-9]+$/;
+    return pattern.test(orderId);
+}
+
+// Search for order
+function searchOrder(orderId) {
+    const orders = JSON.parse(localStorage.getItem('trynex_orders') || '[]');
+    const order = orders.find(o => o.order_id === orderId);
+
+    if (order) {
+        displayOrderStatus(order);
+    } else {
+        showOrderNotFound();
+    }
+}
+
+// Display order status
+function displayOrderStatus(order) {
+    const orderStatus = document.getElementById('order-status');
+    const orderNotFound = document.getElementById('order-not-found');
+
+    // Hide not found message
+    orderNotFound.style.display = 'none';
+
+    // Populate order details
+    document.getElementById('display-order-id').textContent = order.order_id;
+    document.getElementById('display-order-date').textContent = formatDate(order.date);
+    document.getElementById('display-total-amount').textContent = `৳${order.total}`;
+    document.getElementById('display-payment-method').textContent = formatPaymentMethod(order.payment_method);
+    document.getElementById('display-customer-name').textContent = order.customer_name;
+    document.getElementById('display-customer-phone').textContent = order.customer_phone;
+    document.getElementById('display-customer-address').textContent = `${order.customer_address}, ${order.thana}, ${order.district}`;
+
+    // Update status badge
+    const statusBadge = document.getElementById('order-status-badge');
+    statusBadge.textContent = formatStatus(order.status);
+    statusBadge.className = `order-status-badge status-${order.status}`;
+
+    // Update timeline
+    updateTimeline(order);
+
+    // Display order items
+    displayOrderItems(order.items);
+
+    // Show order status section
+    orderStatus.style.display = 'block';
+}
+
+// Format date
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Format payment method
+function formatPaymentMethod(method) {
+    const methods = {
+        'bkash': 'bKash',
+        'nagad': 'Nagad',
+        'rocket': 'Rocket',
+        'cash': 'Cash on Delivery'
+    };
+    return methods[method] || method;
+}
+
+// Format status
+function formatStatus(status) {
+    const statuses = {
+        'pending': 'Pending',
+        'confirmed': 'Confirmed',
+        'processing': 'Processing',
+        'shipped': 'Shipped',
+        'delivered': 'Delivered',
+        'cancelled': 'Cancelled'
+    };
+    return statuses[status] || status;
+}
+
+// Update timeline based on order status
+function updateTimeline(order) {
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    const statusOrder = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'];
+    const currentStatusIndex = statusOrder.indexOf(order.status);
+
+    timelineItems.forEach((item, index) => {
+        if (index <= currentStatusIndex) {
+            item.classList.add('completed');
+        } else if (index === currentStatusIndex + 1) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('completed', 'active');
+        }
+    });
+
+    // Update timestamps (in a real application, these would come from the backend)
+    const orderDate = new Date(order.date);
+    document.getElementById('timestamp-placed').textContent = formatDate(orderDate);
+
+    if (order.status !== 'pending') {
+        const confirmDate = new Date(orderDate.getTime() + 24 * 60 * 60 * 1000); // +1 day
+        document.getElementById('timestamp-payment').textContent = formatDate(confirmDate);
+    }
+
+    if (currentStatusIndex >= 2) {
+        const processingDate = new Date(orderDate.getTime() + 2 * 24 * 60 * 60 * 1000); // +2 days
+        document.getElementById('timestamp-processing').textContent = formatDate(processingDate);
+    }
+
+    if (currentStatusIndex >= 3) {
+        const shippedDate = new Date(orderDate.getTime() + 3 * 24 * 60 * 60 * 1000); // +3 days
+        document.getElementById('timestamp-shipped').textContent = formatDate(shippedDate);
+    }
+
+    if (currentStatusIndex >= 4) {
+        const deliveredDate = new Date(orderDate.getTime() + 5 * 24 * 60 * 60 * 1000); // +5 days
+        document.getElementById('timestamp-delivered').textContent = formatDate(deliveredDate);
+    }
+}
+
+// Display order items
+function displayOrderItems(itemsJson) {
+    const itemsList = document.getElementById('order-items-list');
+    
+    try {
+        const items = JSON.parse(itemsJson);
+        
+        itemsList.innerHTML = items.map(item => `
+            <div class="order-item">
+                <div class="item-info">
+                    <h5>${item.name}</h5>
+                    <p>Quantity: ${item.quantity}</p>
+                    <p>Price: ৳${item.price} each</p>
+                </div>
+                <div class="item-total">
+                    <strong>৳${item.price * item.quantity}</strong>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        itemsList.innerHTML = '<p>Error loading order items</p>';
+    }
+}
+
+// Show order not found
+function showOrderNotFound() {
+    const orderStatus = document.getElementById('order-status');
+    const orderNotFound = document.getElementById('order-not-found');
+
+    orderStatus.style.display = 'none';
+    orderNotFound.style.display = 'block';
+}
+
+// Retry tracking
+function retryTracking() {
+    const orderNotFound = document.getElementById('order-not-found');
+    const orderInput = document.getElementById('order-id-input');
+
+    orderNotFound.style.display = 'none';
+    orderInput.value = '';
+    orderInput.focus();
+}
+
+// Loading and error message functions
+function showLoading() {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.classList.add('active');
+    }
+}
+
+function hideLoading() {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.classList.remove('active');
+    }
+}
+
+function showErrorMessage(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+    errorDiv.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: #dc3545;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        z-index: 3001;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    `;
+
+    document.body.appendChild(errorDiv);
+
+    setTimeout(() => {
+        errorDiv.style.transform = 'translateX(0)';
+    }, 100);
+
+    setTimeout(() => {
+        errorDiv.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            document.body.removeChild(errorDiv);
+        }, 300);
+    }, 3000);
+}
+
+// Export functions for global access
+window.trackOrder = trackOrder;
+window.retryTracking = retryTracking;

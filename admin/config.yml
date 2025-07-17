@@ -1,4 +1,3 @@
-
 backend:
   name: git-gateway
   branch: main
@@ -13,17 +12,17 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
-      - { label: "ID", name: "id", widget: "number" }
-      - { label: "Name", name: "name", widget: "string" }
-      - { label: "Name (Bengali)", name: "name_bn", widget: "string" }
-      - { label: "Price", name: "price", widget: "number" }
-      - { label: "Category", name: "category", widget: "string" }
-      - { label: "Image", name: "image", widget: "image" }
-      - { label: "Description", name: "description", widget: "text" }
-      - { label: "Description (Bengali)", name: "description_bn", widget: "text" }
-      - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "In Stock", name: "in_stock", widget: "boolean", default: true }
-      - { label: "Badge", name: "badge", widget: "string", required: false }
+      - {label: "Product ID", name: "id", widget: "number"}
+      - {label: "Product Name", name: "name", widget: "string"}
+      - {label: "Product Name (Bengali)", name: "name_bn", widget: "string"}
+      - {label: "Price (BDT)", name: "price", widget: "number"}
+      - {label: "Category", name: "category", widget: "select", options: ["Mugs", "T-Shirts", "Keychains", "Water Bottles", "Gift for Him", "Gift for Her", "Gift for Parents", "Gifts for Babies", "For Couple", "Premium Luxury Gift Hampers", "Chocolates & Flowers"]}
+      - {label: "Image URL", name: "image", widget: "string"}
+      - {label: "Description", name: "description", widget: "text"}
+      - {label: "Description (Bengali)", name: "description_bn", widget: "text"}
+      - {label: "Badge", name: "badge", widget: "string", required: false}
+      - {label: "Featured", name: "featured", widget: "boolean", default: false}
+      - {label: "In Stock", name: "in_stock", widget: "boolean", default: true}
 
   - name: "categories"
     label: "Categories"
@@ -31,12 +30,65 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
-      - { label: "ID", name: "id", widget: "number" }
-      - { label: "Name", name: "name", widget: "string" }
-      - { label: "Name (Bengali)", name: "name_bn", widget: "string" }
-      - { label: "Icon", name: "icon", widget: "string" }
-      - { label: "Description", name: "description", widget: "text" }
-      - { label: "Sort Order", name: "sort_order", widget: "number", default: 0 }
+      - {label: "Category ID", name: "id", widget: "number"}
+      - {label: "Category Name", name: "name", widget: "string"}
+      - {label: "Category Name (Bengali)", name: "name_bn", widget: "string"}
+      - {label: "Icon Class", name: "icon", widget: "string"}
+      - {label: "Description", name: "description", widget: "text"}
+
+  - name: "orders"
+    label: "Orders"
+    folder: "_orders"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Order ID", name: "order_id", widget: "string"}
+      - {label: "Customer Name", name: "customer_name", widget: "string"}
+      - {label: "Customer Phone", name: "customer_phone", widget: "string"}
+      - {label: "Customer Address", name: "customer_address", widget: "text"}
+      - {label: "District", name: "district", widget: "string"}
+      - {label: "Thana", name: "thana", widget: "string"}
+      - {label: "Order Items", name: "items", widget: "text"}
+      - {label: "Total Amount", name: "total", widget: "number"}
+      - {label: "Payment Method", name: "payment_method", widget: "select", options: ["bkash", "nagad", "rocket", "cash"]}
+      - {label: "Transaction ID", name: "transaction_id", widget: "string", required: false}
+      - {label: "Order Status", name: "status", widget: "select", options: ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"], default: "pending"}
+      - {label: "Payment Status", name: "payment_status", widget: "select", options: ["pending", "paid", "partial"], default: "pending"}
+      - {label: "Order Date", name: "date", widget: "datetime"}
+      - {label: "Special Instructions", name: "instructions", widget: "text", required: false}
+      - {label: "Admin Notes", name: "admin_notes", widget: "text", required: false}
+
+  - name: "promos"
+    label: "Promo Codes"
+    folder: "_promos"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Promo Code", name: "code", widget: "string"}
+      - {label: "Discount Amount", name: "discount", widget: "number"}
+      - {label: "Discount Type", name: "type", widget: "select", options: ["percentage", "fixed", "shipping"]}
+      - {label: "Description", name: "description", widget: "string"}
+      - {label: "Active", name: "active", widget: "boolean", default: true}
+      - {label: "Minimum Order", name: "min_order", widget: "number", required: false}
+      - {label: "Expiry Date", name: "expiry", widget: "datetime", required: false}
+      - {label: "Usage Limit", name: "usage_limit", widget: "number", required: false}
+
+  - name: "banners"
+    label: "Banners & Offers"
+    folder: "_banners"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Banner Title", name: "title", widget: "string"}
+      - {label: "Banner Text", name: "text", widget: "text"}
+      - {label: "Banner Type", name: "type", widget: "select", options: ["popup", "header", "banner", "notification"]}
+      - {label: "Background Color", name: "bg_color", widget: "string", default: "#d4af37"}
+      - {label: "Text Color", name: "text_color", widget: "string", default: "#ffffff"}
+      - {label: "Button Text", name: "button_text", widget: "string", required: false}
+      - {label: "Button Link", name: "button_link", widget: "string", required: false}
+      - {label: "Active", name: "active", widget: "boolean", default: true}
+      - {label: "Show on Pages", name: "pages", widget: "select", multiple: true, options: ["home", "products", "all"]}
+      - {label: "Auto Close (seconds)", name: "auto_close", widget: "number", default: 10, required: false}
 
   - name: "settings"
     label: "Settings"

@@ -503,12 +503,30 @@ function applyPromoCode() {
         return;
     }
     
+    // Check if promo code exists and is valid
     if (!promoCodes[code] || !promoCodes[code].active) {
         showPromoStatus('Invalid or expired promo code', 'error');
         return;
     }
     
     const promo = promoCodes[code];
+    
+    // Check minimum order requirement
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    if (promo.min_order && subtotal < promo.min_order) {
+        showPromoStatus(`Minimum order of ৳${promo.min_order} required`, 'error');
+        return;
+    }
+    
+    // Check expiry date
+    if (promo.expiry) {
+        const expiryDate = new Date(promo.expiry);
+        const now = new Date();
+        if (now > expiryDate) {
+            showPromoStatus('This promo code has expired', 'error');
+            return;
+        }
+    }
     
     // Apply the promo code
     cart.promoCode = {
@@ -518,9 +536,12 @@ function applyPromoCode() {
         description: promo.description
     };
     
-    showPromoStatus(`Promo applied: ${promo.description}`, 'success');
+    showPromoStatus(`✅ Promo applied: ${promo.description}`, 'success');
     updateCartUI();
     saveCartToStorage();
+    
+    // Clear the input
+    promoInput.value = '';
 }
 
 // Show promo status

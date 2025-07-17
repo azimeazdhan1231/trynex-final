@@ -5,6 +5,9 @@ let categories = [];
 let cart = [];
 let filteredProducts = [];
 let displayedProducts = 6;
+let orders = [];
+let promoCodes = {};
+let banners = [];
 
 // Environment Variables (fallback to defaults)
 const WHATSAPP_NUMBER = '01747292277';
@@ -740,20 +743,45 @@ function setupPaymentMethodSelection() {
     paymentCards.forEach(card => {
         card.addEventListener('click', () => {
             const radio = card.querySelector('input[type="radio"]');
-            radio.checked = true;
+            if (radio) {
+                radio.checked = true;
 
-            // Update card selection visual
-            paymentCards.forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
+                // Update card selection visual
+                paymentCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
 
-            // Show/hide advance payment section
-            if (radio.value === 'cash') {
-                advanceSection.style.display = 'none';
-            } else {
-                advanceSection.style.display = 'block';
+                // Show/hide advance payment section
+                if (radio.value === 'cash') {
+                    if (advanceSection) advanceSection.style.display = 'none';
+                } else {
+                    if (advanceSection) advanceSection.style.display = 'block';
+                }
+
+                selectedPaymentMethod = radio.value;
+                updateOrderReview();
             }
-
-            selectedPaymentMethod = radio.value;
+        });
+    });
+    
+    // Also handle radio button direct clicks
+    const radios = document.querySelectorAll('input[name="payment-method"]');
+    radios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            const card = radio.closest('.payment-method-card');
+            if (card) {
+                paymentCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                
+                selectedPaymentMethod = radio.value;
+                
+                if (radio.value === 'cash') {
+                    if (advanceSection) advanceSection.style.display = 'none';
+                } else {
+                    if (advanceSection) advanceSection.style.display = 'block';
+                }
+                
+                updateOrderReview();
+            }
         });
     });
 }
@@ -840,6 +868,33 @@ function updateCustomerSummary() {
     `;
 }
 
+// Generate unique order ID
+function generateOrderId() {
+    const timestamp = Date.now().toString(36);
+    const randomStr = Math.random().toString(36).substr(2, 5);
+    return `TRX-${timestamp}-${randomStr}`.toUpperCase();
+}
+
+// Save order to localStorage and potentially send to admin
+function saveOrder(orderData) {
+    const orders = JSON.parse(localStorage.getItem('trynex_orders') || '[]');
+    orders.push(orderData);
+    localStorage.setItem('trynex_orders', JSON.stringify(orders));
+    
+    // Try to save to admin system (if available)
+    try {
+        saveOrderToAdmin(orderData);
+    } catch (error) {
+        console.warn('Could not save to admin system:', error);
+    }
+}
+
+// Save order to admin system
+async function saveOrderToAdmin(orderData) {
+    // This would integrate with your CMS/admin system
+    console.log('Order saved:', orderData);
+}
+
 // Checkout Functions
 function proceedToCheckout() {
     if (cart.length === 0) {
@@ -871,6 +926,7 @@ function placeOrder() {
     const customerThana = document.getElementById('customer-thana').value;
     const customerAddress = document.getElementById('customer-address').value.trim();
     const transactionId = document.getElementById('transaction-id').value.trim();
+    const specialInstructions = document.getElementById('special-instructions').value.trim();
     const paymentMethod = selectedPaymentMethod; // Get selected payment method
 
     // Basic validation
@@ -878,6 +934,9 @@ function placeOrder() {
         showErrorMessage('Please fill in all required fields');
         return;
     }
+
+    // Generate unique order ID
+    const orderId = generateOrderId();
 
     // Retrieve order details
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -895,8 +954,34 @@ function placeOrder() {
     const total = subtotal - discount + deliveryFee;
     const orderDetails = cart.map(item => `${item.name} x ${item.quantity} = ৳${item.price * item.quantity}`).join('\n');
 
-    // Construct message
+    // Create order object
+    const orderData = {
+        order_id: orderId,
+        customer_name: customerName,
+        customer_phone: customerPhone,
+        customer_address: customerAddress,
+        district: customerDistrict,
+        thana: customerThana,
+        items: JSON.stringify(cart),
+        total: total,
+        subtotal: subtotal,
+        discount: discount,
+        delivery_fee: deliveryFee,
+        payment_method: paymentMethod,
+        transaction_id: transactionId,
+        special_instructions: specialInstructions,
+        status: 'pending',
+        payment_status: paymentMethod === 'cash' ? 'pending' : 'partial',
+        date: new Date().toISOString(),
+        promo_code: cart.promoCode?.code || null
+    };
+
+    // Save order
+    saveOrder(orderData);
+
+    // Construct WhatsApp message
     let message = `🛒 *New Order from TryneX*\n\n` +
+        `📋 *Order ID:* ${orderId}\n\n` +
         `👤 *Customer Details:*\n` +
         `Name: ${customerName}\n` +
         `Phone: ${customerPhone}\n` +
@@ -918,19 +1003,60 @@ function placeOrder() {
         message += `Payment will be collected upon delivery.\n\n`;
     }
 
+    if (specialInstructions) {
+        message += `📝 *Special Instructions:* ${specialInstructions}\n\n`;
+    }
+
     message += `Please confirm this order. Thank you! 🙏`;
 
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-
-    // Show success notification
-    showSuccessNotification();
+    // Show order confirmation instead of just WhatsApp
+    showOrderConfirmation(orderId, message);
 
     // Clear cart and close modal
     cart = [];
     updateCartUI();
     saveCartToStorage();
     closeModal('checkout-modal');
+}
+
+// Show order confirmation modal
+function showOrderConfirmation(orderId, whatsappMessage) {
+    document.getElementById('order-id-display').textContent = orderId;
+    
+    // Store WhatsApp message for optional use
+    window.currentOrderWhatsApp = whatsappMessage;
+    
+    openModal('order-confirmation-modal');
+    
+    // Auto-close after 10 seconds
+    setTimeout(() => {
+        closeModal('order-confirmation-modal');
+    }, 10000);
+}
+
+// Copy order ID to clipboard
+function copyOrderId() {
+    const orderId = document.getElementById('order-id-display').textContent;
+    navigator.clipboard.writeText(orderId).then(() => {
+        showSuccessMessage('Order ID copied to clipboard!');
+    }).catch(() => {
+        showErrorMessage('Failed to copy Order ID');
+    });
+}
+
+// Send order via WhatsApp (optional)
+function sendOrderViaWhatsApp() {
+    if (window.currentOrderWhatsApp) {
+        const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(window.currentOrderWhatsApp)}`;
+        window.open(whatsappUrl, '_blank');
+    }
+}
+
+// Close order confirmation and continue shopping
+function closeOrderConfirmation() {
+    closeModal('order-confirmation-modal');
+    // Redirect to products page or home
+    window.location.href = 'products.html';
 }
 
 // Delivery Fee Calculation
@@ -1273,6 +1399,11 @@ window.scrollToSection = scrollToSection;
 window.updateThanas = updateThanas;
 window.showSuccessNotification = showSuccessNotification;
 window.closeNotification = closeNotification;
+window.generateOrderId = generateOrderId;
+window.copyOrderId = copyOrderId;
+window.sendOrderViaWhatsApp = sendOrderViaWhatsApp;
+window.closeOrderConfirmation = closeOrderConfirmation;
+window.goToStep = goToStep;
 
 // Modal structure
 
@@ -1294,6 +1425,12 @@ document.body.insertAdjacentHTML('beforeend', `
 
                 <div class="cart-items" id="cart-items">
                     <!-- Cart items will be dynamically added here -->
+                </div>
+                
+                <!-- Special Instructions -->
+                <div class="instructions-section">
+                    <label for="special-instructions-cart">Any Special Instructions:</label>
+                    <textarea id="special-instructions-cart" placeholder="Enter any special requests or instructions for your order..." rows="3"></textarea>
                 </div>
             </div>
 

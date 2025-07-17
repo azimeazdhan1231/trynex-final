@@ -164,8 +164,8 @@
                 <!-- Promo Code Section -->
                 <div class="promo-section" id="promo-section">
                     <div class="promo-input-container">
-                        <input type="text" id="promo-code" placeholder="Enter promo code">
-                        <button class="apply-promo-btn" id="apply-promo-btn">Apply</button>
+                        <input type="text" id="promo-code" placeholder="Enter promo code (e.g., WELCOME10)">
+                        <button class="apply-promo-btn" id="apply-promo-btn" onclick="applyPromoCode()">Apply</button>
                     </div>
                     <div class="promo-status" id="promo-status"></div>
                 </div>
@@ -391,7 +391,7 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <h4>Thank you for your order!</h4>
-                    <p>Your order has been placed successfully.</p>
+                    <p>Your order has been placed successfully and is now being processed.</p>
                     
                     <div class="order-details">
                         <div class="order-info">
@@ -412,10 +412,16 @@
                         
                         <div class="contact-info">
                             <p>We will contact you soon to confirm delivery details.</p>
-                            <a href="https://wa.me/01747292277" target="_blank" class="whatsapp-contact">
-                                <i class="fab fa-whatsapp"></i>
-                                Contact on WhatsApp
-                            </a>
+                            <div class="contact-buttons">
+                                <a href="https://wa.me/01747292277" target="_blank" class="whatsapp-contact">
+                                    <i class="fab fa-whatsapp"></i>
+                                    Contact on WhatsApp
+                                </a>
+                                <button class="send-whatsapp-btn" onclick="sendOrderViaWhatsApp()">
+                                    <i class="fab fa-whatsapp"></i>
+                                    Send via WhatsApp (Optional)
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
