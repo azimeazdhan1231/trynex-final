@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TryneX - Premium Gift Collection</title>
+    <meta name="description" content="Premium gift collection including mugs, t-shirts, keychains, and luxury hampers. Express your love with TryneX.">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="TryneX - Premium Gift Collection">
+    <meta property="og:description" content="Premium gift collection including mugs, t-shirts, keychains, and luxury hampers.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://trynex.netlify.app">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Netlify Identity -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <h1 class="logo">TryneX</h1>
+                <span class="tagline">Premium Gifts</span>
+            </div>
+            
+            <nav class="nav-menu" id="navMenu">
+                <ul class="nav-list">
+                    <li><a href="#hero" class="nav-link active">Home</a></li>
+                    <li><a href="#products" class="nav-link">Shop</a></li>
+                    <li><a href="products.html" class="nav-link">Products</a></li>
+                    <li><a href="#categories" class="nav-link">Categories</a></li>
+                    <li><a href="track-order.html" class="nav-link">Track Order</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
+            
+            <div class="nav-actions">
+                <button class="search-btn" id="searchBtn">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="cart-btn" id="cartBtn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+                <button class="menu-toggle" id="menuToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-overlay" id="searchOverlay">
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search products...">
+                <button class="search-close" id="searchClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-slider">
+            <div class="slide active">
+                <div class="slide-content">
+                    <h2 class="slide-title">Premium Gift Collection</h2>
+                    <p class="slide-subtitle">Express your love with our exclusive range of personalized gifts</p>
+                    <button class="cta-btn" onclick="scrollToSection('products')">
+                        <i class="fas fa-shopping-bag"></i> Shop Now
+                    </button>
+                </div>
+                <div class="slide-image">
+                    <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Premium Gifts" loading="eager">
+                </div>
+            </div>
+            <div class="slide">
+                <div class="slide-content">
+                    <h2 class="slide-title">Luxury Gift Hampers</h2>
+                    <p class="slide-subtitle">Curated collections for every special occasion</p>
+                    <button class="cta-btn" onclick="scrollToSection('products')">
+                        <i class="fas fa-gift"></i> Explore Collection
+                    </button>
+                </div>
+                <div class="slide-image">
+                    <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Luxury Hampers" loading="lazy">
+                </div>
+            </div>
+            <div class="slide">
+                <div class="slide-content">
+                    <h2 class="slide-title">Personalized Mugs & T-Shirts</h2>
+                    <p class="slide-subtitle">Custom designs that tell your unique story</p>
+                    <button class="cta-btn" onclick="scrollToSection('products')">
+                        <i class="fas fa-palette"></i> Customize Now
+                    </button>
+                </div>
+                <div class="slide-image">
+                    <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Custom Products" loading="lazy">
+                </div>
+            </div>
+        </div>
+        <div class="slider-controls">
+            <button class="slider-btn prev" id="prevSlide" aria-label="Previous slide">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="slider-btn next" id="nextSlide" aria-label="Next slide">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        <div class="slider-dots" id="sliderDots"></div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories" id="categories">
+        <div class="container">
+            <h2 class="section-title">Shop by Category</h2>
+            <div class="categories-grid">
+                <div class="category-card" data-category="mugs">
+                    <div class="category-icon">☕</div>
+                    <h3>Mugs</h3>
+                    <p>প্রিমিয়াম সিরামিক মগ</p>
+                    <span class="price">Starting at ৫৫০৳</span>
+                </div>
+                <div class="category-card" data-category="t-shirts">
+                    <div class="category-icon">👕</div>
+                    <h3>T-Shirts</h3>
+                    <p>আরামদায়ক টি-শার্ট</p>
+                    <span class="price">Starting at ৫৫০৳</span>
+                </div>
+                <div class="category-card" data-category="keychains">
+                    <div class="category-icon">🔑</div>
+                    <h3>Keychains</h3>
+                    <p>স্টাইলিশ চাবির চেইন</p>
+                    <span class="price">Starting at ৪০০৳</span>
+                </div>
+                <div class="category-card" data-category="water-bottles">
+                    <div class="category-icon">🍶</div>
+                    <h3>Water Bottles</h3>
+                    <p>ইকো-ফ্রেন্ডলি বোতল</p>
+                    <span class="price">Starting at ৮০০৳</span>
+                </div>
+                <div class="category-card" data-category="gift-him">
+                    <div class="category-icon">🎁</div>
+                    <h3>Gift for Him</h3>
+                    <p>স্পেশাল</p>
+                    <span class="price">Starting at ১২০০৳</span>
+                </div>
+                <div class="category-card" data-category="gift-her">
+                    <div class="category-icon">💝</div>
+                    <h3>Gift for Her</h3>
+                    <p>এক্সক্লুসিভ</p>
+                    <span class="price">Starting at ১৫০০৳</span>
+                </div>
+                <div class="category-card" data-category="gift-parents">
+                    <div class="category-icon">❤️</div>
+                    <h3>Gift for Parents</h3>
+                    <p>ভালোবাসা</p>
+                    <span class="price">Starting at ১০০০৳</span>
+                </div>
+                <div class="category-card" data-category="gift-babies">
+                    <div class="category-icon">🍼</div>
+                    <h3>Gifts for Babies</h3>
+                    <p>সেফ</p>
+                    <span class="price">Starting at ৭০০৳</span>
+                </div>
+                <div class="category-card" data-category="for-couple">
+                    <div class="category-icon">💑</div>
+                    <h3>For Couple</h3>
+                    <p>রোমান্টিক</p>
+                    <span class="price">Starting at ১১০০৳</span>
+                </div>
+                <div class="category-card" data-category="luxury-hampers">
+                    <div class="category-icon">🎁</div>
+                    <h3>Luxury Hampers</h3>
+                    <p>লাক্সারি</p>
+                    <span class="price">Starting at ২৫০০৳</span>
+                </div>
+                <div class="category-card" data-category="chocolates-flowers">
+                    <div class="category-icon">🍫</div>
+                    <h3>Chocolates & Flowers</h3>
+                    <p>রোমান্টিক</p>
+                    <span class="price">Starting at ১৩০০৳</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products" id="products">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Featured Products</h2>
+                <div class="products-controls">
+                    <select class="category-filter" id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="mugs">Mugs</option>
+                        <option value="t-shirts">T-Shirts</option>
+                        <option value="keychains">Keychains</option>
+                        <option value="water-bottles">Water Bottles</option>
+                        <option value="gift-him">Gift for Him</option>
+                        <option value="gift-her">Gift for Her</option>
+                        <option value="gift-parents">Gift for Parents</option>
+                        <option value="gift-babies">Gifts for Babies</option>
+                        <option value="for-couple">For Couple</option>
+                        <option value="luxury-hampers">Luxury Hampers</option>
+                        <option value="chocolates-flowers">Chocolates & Flowers</option>
+                    </select>
+                    <button class="view-all-btn" onclick="window.location.href='products.html'">View All Products</button>
+                </div>
+            </div>
+            <div class="products-grid" id="productsGrid"></div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2 class="newsletter-title">Stay Updated</h2>
+                <p class="newsletter-subtitle">Get notified about new products and exclusive offers</p>
+                <form class="newsletter-form" id="newsletterForm">
+                    <input type="email" class="newsletter-input" placeholder="Enter your email" required>
+                    <button type="submit" class="newsletter-btn">Subscribe</button>
+                </form>
+                <div class="newsletter-message" id="newsletterMessage"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <h2 class="section-title">Get in Touch</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h3>Phone</h3>
+                            <p>+880 1747 292277</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h3>Email</h3>
+                            <p>info@trynex.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fab fa-whatsapp"></i>
+                        <div>
+                            <h3>WhatsApp</h3>
+                            <a href="https://wa.me/8801747292277" target="_blank" class="whatsapp-link">
+                                Chat with us
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <input type="text" class="form-input" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" class="form-input" placeholder="Your Email" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-input" placeholder="Your Message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="form-btn">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>TryneX</h3>
+                    <p>Premium gift collection for every special occasion. Express your love with our exclusive range of personalized gifts.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="https://wa.me/8801747292277"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#hero">Home</a></li>
+                        <li><a href="#products">Shop</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="track-order.html">Track Order</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Categories</h4>
+                    <ul>
+                        <li><a href="#" onclick="filterProducts('mugs')">Mugs</a></li>
+                        <li><a href="#" onclick="filterProducts('t-shirts')">T-Shirts</a></li>
+                        <li><a href="#" onclick="filterProducts('keychains')">Keychains</a></li>
+                        <li><a href="#" onclick="filterProducts('luxury-hampers')">Luxury Hampers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="#contact">Contact Us</a></li>
+                        <li><a href="track-order.html">Track Order</a></li>
+                        <li><a href="#" onclick="openCartModal()">My Cart</a></li>
+                        <li><a href="#" onclick="openPromoCodeModal()">Promo Codes</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 TryneX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Shopping Cart</h3>
+                <button class="modal-close" onclick="closeCartModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="cart-items" id="cartItems"></div>
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="cartSubtotal">৳0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Delivery:</span>
+                        <span id="deliveryFee">৳80</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span id="cartTotal">৳80</span>
+                    </div>
+                </div>
+                <div class="cart-actions">
+                    <div class="instruction-box">
+                        <textarea id="orderInstructions" placeholder="Any special instructions for your order..."></textarea>
+                    </div>
+                    <div class="delivery-location">
+                        <select id="deliveryLocation">
+                            <option value="dhaka">Dhaka Metro (৳80)</option>
+                            <option value="outside">Outside Dhaka (৳120)</option>
+                        </select>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="whatsapp-order-btn" onclick="orderViaWhatsApp()">
+                            <i class="fab fa-whatsapp"></i> Order via WhatsApp
+                        </button>
+                        <button class="proceed-order-btn" onclick="proceedToOrder()">
+                            Proceed to Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Modal -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Complete Your Order</h3>
+                <button class="modal-close" onclick="closeOrderModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="order-form">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="customerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="customerPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="customerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Delivery Address</label>
+                        <textarea id="deliveryAddress" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <div class="payment-options">
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="bkash">
+                                <span>Bkash</span>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="nagad">
+                                <span>Nagad</span>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="rocket">
+                                <span>Rocket</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="promo-code-section">
+                        <div class="promo-input-group">
+                            <input type="text" id="promoCode" placeholder="Enter promo code">
+                            <button type="button" onclick="applyPromoCode()">Apply</button>
+                        </div>
+                        <div class="promo-message" id="promoMessage"></div>
+                    </div>
+                    <div class="order-summary">
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="orderSubtotal">৳0</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Delivery:</span>
+                            <span id="orderDelivery">৳80</span>
+                        </div>
+                        <div class="summary-row discount" id="discountRow" style="display: none;">
+                            <span>Discount:</span>
+                            <span id="discountAmount">৳0</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total:</span>
+                            <span id="orderTotal">৳80</span>
+                        </div>
+                    </div>
+                    <button type="button" class="place-order-btn" onclick="placeOrder()">
+                        Place Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Success Modal -->
+    <div class="modal" id="orderSuccessModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Order Placed Successfully!</h3>
+                <button class="modal-close" onclick="closeOrderSuccessModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="success-content">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4>Thank you for your order!</h4>
+                    <p>Your order has been placed successfully.</p>
+                    <div class="order-details">
+                        <div class="detail-row">
+                            <span>Order ID:</span>
+                            <span id="generatedOrderId"></span>
+                            <button class="copy-btn" onclick="copyOrderId()">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="detail-row">
+                            <span>Total Amount:</span>
+                            <span id="finalOrderTotal"></span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Status:</span>
+                            <span class="status pending">Pending</span>
+                        </div>
+                    </div>
+                    <div class="success-actions">
+                        <button class="track-order-btn" onclick="trackOrder()">
+                            Track Order
+                        </button>
+                        <button class="continue-shopping-btn" onclick="continueShopping()">
+                            Continue Shopping
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Promo Code Modal -->
+    <div class="modal" id="promoCodeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Available Promo Codes</h3>
+                <button class="modal-close" onclick="closePromoCodeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="promo-codes" id="promoCodesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script>
+        // Netlify Identity
+        if (window.netlifyIdentity) {
+            window.netlifyIdentity.on("init", user => {
+                if (!user) {
+                    window.netlifyIdentity.on("login", () => {
+                        document.location.href = "/admin/";
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

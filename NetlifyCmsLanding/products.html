@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Products - TryneX</title>
+    <meta name="description" content="Browse our complete collection of premium gifts including mugs, t-shirts, keychains, and luxury hampers.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <h1 class="logo">TryneX</h1>
+                <span class="tagline">Premium Gifts</span>
+            </div>
+            
+            <nav class="nav-menu" id="navMenu">
+                <ul class="nav-list">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="index.html#products" class="nav-link">Shop</a></li>
+                    <li><a href="products.html" class="nav-link active">Products</a></li>
+                    <li><a href="index.html#categories" class="nav-link">Categories</a></li>
+                    <li><a href="track-order.html" class="nav-link">Track Order</a></li>
+                    <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
+            
+            <div class="nav-actions">
+                <button class="search-btn" id="searchBtn">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="cart-btn" id="cartBtn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+                <button class="menu-toggle" id="menuToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-overlay" id="searchOverlay">
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search products...">
+                <button class="search-close" id="searchClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </header>
+
+    <!-- Products Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>All Products</h1>
+            <p>Discover our complete collection of premium gifts</p>
+        </div>
+    </section>
+
+    <!-- Products Filter Section -->
+    <section class="products-filter">
+        <div class="container">
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label>Category:</label>
+                    <select class="filter-select" id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="mugs">Mugs</option>
+                        <option value="t-shirts">T-Shirts</option>
+                        <option value="keychains">Keychains</option>
+                        <option value="water-bottles">Water Bottles</option>
+                        <option value="gift-him">Gift for Him</option>
+                        <option value="gift-her">Gift for Her</option>
+                        <option value="gift-parents">Gift for Parents</option>
+                        <option value="gift-babies">Gifts for Babies</option>
+                        <option value="for-couple">For Couple</option>
+                        <option value="luxury-hampers">Luxury Hampers</option>
+                        <option value="chocolates-flowers">Chocolates & Flowers</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Price Range:</label>
+                    <select class="filter-select" id="priceFilter">
+                        <option value="">All Prices</option>
+                        <option value="0-500">Under ৳500</option>
+                        <option value="500-1000">৳500 - ৳1000</option>
+                        <option value="1000-1500">৳1000 - ৳1500</option>
+                        <option value="1500-2000">৳1500 - ৳2000</option>
+                        <option value="2000+">Above ৳2000</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Sort By:</label>
+                    <select class="filter-select" id="sortFilter">
+                        <option value="featured">Featured</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="name-asc">Name: A to Z</option>
+                        <option value="name-desc">Name: Z to A</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <button class="clear-filters-btn" onclick="clearFilters()">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </button>
+                </div>
+            </div>
+            
+            <div class="products-info">
+                <span class="products-count" id="productsCount">Showing 0 products</span>
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="grid">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button class="view-btn" data-view="list">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- All Products Section -->
+    <section class="all-products">
+        <div class="container">
+            <div class="products-grid" id="allProductsGrid"></div>
+            
+            <!-- Pagination -->
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </section>
+
+    <!-- Product Quick View Modal -->
+    <div class="modal" id="quickViewModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Product Details</h3>
+                <button class="modal-close" onclick="closeQuickViewModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="product-quick-view">
+                    <div class="product-image-section">
+                        <img id="quickViewImage" src="" alt="">
+                        <div class="image-zoom" id="imageZoom"></div>
+                    </div>
+                    <div class="product-info-section">
+                        <h2 id="quickViewTitle"></h2>
+                        <div class="product-category" id="quickViewCategory"></div>
+                        <div class="product-price" id="quickViewPrice"></div>
+                        <div class="product-description" id="quickViewDescription"></div>
+                        <div class="product-actions">
+                            <div class="quantity-selector">
+                                <button class="qty-btn" onclick="changeQuantity(-1)">-</button>
+                                <input type="number" id="quickViewQuantity" value="1" min="1">
+                                <button class="qty-btn" onclick="changeQuantity(1)">+</button>
+                            </div>
+                            <button class="add-to-cart-btn" onclick="addToCartFromQuickView()">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </button>
+                            <button class="whatsapp-btn" onclick="orderViaWhatsAppSingle()">
+                                <i class="fab fa-whatsapp"></i> Order via WhatsApp
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include all modals from index.html -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Shopping Cart</h3>
+                <button class="modal-close" onclick="closeCartModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="cart-items" id="cartItems"></div>
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="cartSubtotal">৳0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Delivery:</span>
+                        <span id="deliveryFee">৳80</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span id="cartTotal">৳80</span>
+                    </div>
+                </div>
+                <div class="cart-actions">
+                    <div class="instruction-box">
+                        <textarea id="orderInstructions" placeholder="Any special instructions for your order..."></textarea>
+                    </div>
+                    <div class="delivery-location">
+                        <select id="deliveryLocation">
+                            <option value="dhaka">Dhaka Metro (৳80)</option>
+                            <option value="outside">Outside Dhaka (৳120)</option>
+                        </select>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="whatsapp-order-btn" onclick="orderViaWhatsApp()">
+                            <i class="fab fa-whatsapp"></i> Order via WhatsApp
+                        </button>
+                        <button class="proceed-order-btn" onclick="proceedToOrder()">
+                            Proceed to Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>TryneX</h3>
+                    <p>Premium gift collection for every special occasion. Express your love with our exclusive range of personalized gifts.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="https://wa.me/8801747292277"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#products">Shop</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="track-order.html">Track Order</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Categories</h4>
+                    <ul>
+                        <li><a href="#" onclick="filterProducts('mugs')">Mugs</a></li>
+                        <li><a href="#" onclick="filterProducts('t-shirts')">T-Shirts</a></li>
+                        <li><a href="#" onclick="filterProducts('keychains')">Keychains</a></li>
+                        <li><a href="#" onclick="filterProducts('luxury-hampers')">Luxury Hampers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="index.html#contact">Contact Us</a></li>
+                        <li><a href="track-order.html">Track Order</a></li>
+                        <li><a href="#" onclick="openCartModal()">My Cart</a></li>
+                        <li><a href="#" onclick="openPromoCodeModal()">Promo Codes</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 TryneX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script>
+        // Initialize products page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeProductsPage();
+        });
+    </script>
+</body>
+</html>

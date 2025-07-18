@@ -1,0 +1,47 @@
+Create a landing page for a website named "TryneX" with the following specifications:
+- Design: Ultra-modern, dynamic, and premium impression with a clean layout, reflecting July 2025 trends as of 04:55 AM +06, Friday, July 18, 2025, optimized for perfect responsiveness across all screen sizes with precise breakpoints (e.g., 320px, 768px, 1024px, 1440px) to prevent issues like auto-opening navbars on smaller screens.
+- Files: Provide static files including index.html, styles.css, script.js, and a new products.html page, all organized in the root directory with clear separation for maintainability, ready for Netlify deployment.
+- Admin Panel: Integrate Netlify CMS for content management, including an admin folder with index.html and config.yml for managing products (add, edit, delete), categories, site content, orders, promo codes, banners, offers, and order statuses. Ensure the admin panel is accessible via /admin, works with Git-based deployment, and reflects real-time data with functional category tabs, avoiding blank sections.
+- Theme: Use a golden (#d4af37), white, and black color scheme applied dynamically throughout with gradients, hover effects, subtle 3D transitions, and advanced animations (e.g., fade-in, slide-in, parallax, 3D tilt effects) for a premium feel across all devices.
+- Content: Include detailed product information for Facebook catalog ads, featuring an expanded list of at least 50 products with realistic images and descriptions (use https://via.placeholder.com/300x300?text=Product+Name if real images are unavailable). Products and categories should be editable via the admin panel:
+  - **Mugs**: প্রিমিয়াম সিরামিক মগ – Starting at ৫৫০৳ (e.g., "Classic Ceramic Mug" - ৫৫০৳, "Designer Mug" - ৬৫০৳, "Personalized Mug" - ৭০০৳)
+  - **T-Shirts**: আরামদায়ক টি-শার্ট – Starting at ৫৫০৳ (e.g., "Comfort T-Shirt" - ৫৫০৳, "Premium Graphic Tee" - ৬০০৳, "Custom T-Shirt" - ৬৫০৳)
+  - **Keychains**: স্টাইলিশ চাবির চেইন – Starting at ৪০০৳ (e.g., "Elegant Keychain" - ৪০০৳, "Custom Keychain" - ৪৫০৳, "Metal Keychain" - ৫০০৳)
+  - **Water Bottles**: ইকো-ফ্রেন্ডলি বোতল – Starting at ৮০০৳ (e.g., "Eco-Friendly Bottle" - ৮০০৳, "Insulated Bottle" - ৯০০৳, "Stainless Steel Bottle" - ১০০০৳)
+  - **Gift for Him**: 🎁 স্পেশাল (e.g., "Men’s Leather Wallet" - ১২০০৳, "Men’s Watch" - ১৫০০৳, "Perfume Set" - ১৮০০৳)
+  - **Gift for Her**: 💝 এক্সক্লুসিভ (e.g., "Ladies’ Pearl Necklace" - ১৫০০৳, "Handbag Set" - ১৮০০৳, "Earring Set" - ২০০০৳)
+  - **Gift for Parents**: ❤️ ভালোবাসা (e.g., "Family Photo Frame" - ১০০০৳, "Personalized Plaque" - ১৩০০৳, "Couple Mug Set" - ১৫০০৳)
+  - **Gifts for Babies**: 🍼 সেফ (e.g., "Baby Rattle Set" - ৭০০৳, "Soft Toy Bundle" - ৮৫০৳, "Baby Blanket" - ৯৫০৳)
+  - **For Couple**: 💑 রোমান্টিক (e.g., "Couple’s Mug Set" - ১১০০৳, "Love Photo Frame" - ১৪০০৳, "Couple Keychain" - ১৬০০৳)
+  - **Premium Luxury Gift Hampers**: 🎁 লাক্সারি (e.g., "Luxury Hamper" - ২৫০০৳, "Deluxe Gift Box" - ৩০০০৳, "Premium Hamper" - ৩৫০০৳)
+  - **Chocolates & Flowers**: 🍫🌹 রোমান্টিক (e.g., "Chocolate Flower Combo" - ১৩০০৳, "Rose & Truffle Set" - ১৬০০৳, "Flower Bouquet" - ১৮০০৳)
+  - Additional Products: Include 40 more items (e.g., "Scented Candles" - ৬০০৳, "Jewelry Box" - ১৪০০৳, "Custom Pillow" - ৯০০৳, "Leather Diary" - ১১০০৳, "Wooden Pen Set" - ১৩০০৳) with varied pricing and categories.
+- Features:
+  - Cart System: Fully functional cart with add/remove items, total calculation, modal display, and a new "Any Instruction" text box for client wishes.
+  - Order Management: Add a "Proceed to Order" button in the cart modal, generating a unique order ID (e.g., TXR-20250718-001), a dynamic responsive dashboard with copy functionality, and a "Track Status" page for clients to monitor orders with real-time updates.
+  - WhatsApp Ordering: Optional direct order option for each product and cart total, using WhatsApp number 01747292277, but not mandatory—clients can choose website ordering.
+  - Categories: Add a category filter dropdown (e.g., Mugs, T-Shirts, Keychains, Water Bottles, Gift for Him, Gift for Her, Gift for Parents, Gifts for Babies, For Couple, Premium Luxury Gift Hampers, Chocolates & Flowers) with dynamic product sorting, manageable via the admin panel.
+  - Search Bar: Implement a live search feature filtering products by name or category, optimized for all devices with a YouTube-like algorithm (e.g., predictive suggestions, relevance ranking), ensuring no overlap and responsive design.
+  - Newsletter Signup: Add a form for email subscriptions with a success message (e.g., "Thank you for subscribing!").
+  - Responsive Slider: Include a hero section with a sliding banner showcasing featured products or promotions, fully responsive with touch support.
+  - Social Proof: Display customer review snippets (e.g., "Amazing quality! - John D.") or trust badges (e.g., "Secure Payment").
+  - Promo Codes: Add a promo code section in the cart modal, integrating real-time updates from admin-created codes, with management for existing promos (e.g., add, edit, delete, set expiry).
+  - Offers and Banners: Include admin panel features to create responsive pop-up offers and banners (e.g., seasonal discounts), editable with real-time visibility on the site.
+  - Delivery Fees: Automatically calculate delivery fees (80৳ for Dhaka metro, 120-150৳ outside Dhaka) based on client address input (e.g., dropdown or text field).
+  - Payment Options: Enhance the cart modal payment page with selectable options (Bkash, Nagad, Rocket) via radio buttons or dropdown, clearly indicating the client’s chosen method.
+  - Admin Order Management: Provide admin panel features to update order status (e.g., Pending, Processing, Shipped, Delivered), payment status (e.g., Unpaid, Paid), add instructions, and manage all orders dynamically with filters and export options.
+- Navigation: Add a fixed header with links to Home, Shop, Products, Categories, Track Status, and Contact sections, with a hamburger menu for mobile views that remains closed by default on smaller screens, optimized with media queries.
+- Animation: Showcase advanced animations (e.g., fade-in, slide-in, parallax, 3D tilt effects) to reflect July 2025's cutting-edge style, optimized for performance with lazy loading.
+- Deployment: Optimize for Netlify deployment with a root-level index.html file, proper admin panel configuration, and environment variables for sensitive data (e.g., WHATSAPP_NUMBER=01747292277 stored in Netlify settings).
+- Contact: Add a Contact section with a WhatsApp link[](https://wa.me/01747292277) and a form for inquiries.
+- Order Booking Logic: In the cart modal, after "Proceed to Order," generate a unique order ID, display a responsive dashboard with copy functionality, and link to a "Track Status" page. Validate payments with selectable options (Bkash, Nagad, Rocket), update the admin panel with order details real-time, and allow clients to track status without WhatsApp dependency.
+- Responsiveness: Ensure perfect responsiveness with media queries for all devices (320px, 768px, 1024px, 1440px), touch-friendly interactions, and no layout issues.
+- Performance: Optimize with lazy loading for images, minified CSS/JS, and efficient rendering for faster load times.
+- New Page: Create a "products.html" page listing all products with advanced features (e.g., filters by price/category, sorting, detailed views with zoom), connected to the admin panel for real-time updates.
+- Netlify CMS Configuration: Ensure admin/config.yml includes collections for products, categories, orders, promo codes, and banners, with fields like:
+  - Products: title, price, category, image, description
+  - Categories: name, slug
+  - Orders: order_id, status, payment_method, payment_status, instructions
+  - Promo Codes: code, discount, expiry_date
+  - Banners: title, image, link, active_status
+- Deployment Instructions: Push to a GitHub repository (e.g., tryneX-website), link to Netlify, set Build settings (Branch: main, Base directory: /, Build command: blank, Publish directory: /), enable Identity with "Invite only" registration and Git Gateway, invite yourself as Admin, and deploy. Verify all features work, reflect in the admin panel, and allow order status updates before pushing updated directories to GitHub.

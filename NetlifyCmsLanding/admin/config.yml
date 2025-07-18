@@ -1,0 +1,86 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "static/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: "products"
+    label: "Products"
+    folder: "content/products"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Price", name: "price", widget: "number"}
+      - {label: "Category", name: "category", widget: "select", options: ["mugs", "t-shirts", "keychains", "water-bottles", "gift-him", "gift-her", "gift-parents", "gift-babies", "for-couple", "luxury-hampers", "chocolates-flowers"]}
+      - {label: "Image", name: "image", widget: "image"}
+      - {label: "Description", name: "description", widget: "text"}
+      - {label: "Featured", name: "featured", widget: "boolean", default: false}
+      - {label: "In Stock", name: "in_stock", widget: "boolean", default: true}
+
+  - name: "categories"
+    label: "Categories"
+    folder: "content/categories"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Name", name: "name", widget: "string"}
+      - {label: "Icon", name: "icon", widget: "string"}
+      - {label: "Description", name: "description", widget: "text"}
+      - {label: "Starting Price", name: "starting_price", widget: "number"}
+
+  - name: "orders"
+    label: "Orders"
+    folder: "content/orders"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Order ID", name: "order_id", widget: "string"}
+      - {label: "Customer Name", name: "customer_name", widget: "string"}
+      - {label: "Customer Phone", name: "customer_phone", widget: "string"}
+      - {label: "Customer Email", name: "customer_email", widget: "string"}
+      - {label: "Status", name: "status", widget: "select", options: ["Pending", "Confirmed", "Processing", "Shipped", "Delivered", "Cancelled"]}
+      - {label: "Payment Status", name: "payment_status", widget: "select", options: ["Unpaid", "Paid", "Refunded"]}
+      - {label: "Total Amount", name: "total_amount", widget: "number"}
+      - {label: "Order Date", name: "order_date", widget: "datetime"}
+
+  - name: "promo-codes"
+    label: "Promo Codes"
+    folder: "content/promo-codes"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Code", name: "code", widget: "string"}
+      - {label: "Discount", name: "discount", widget: "number"}
+      - {label: "Type", name: "type", widget: "select", options: ["percentage", "fixed"]}
+      - {label: "Expiry Date", name: "expiry", widget: "datetime"}
+      - {label: "Active", name: "active", widget: "boolean", default: true}
+
+  - name: "banners"
+    label: "Banners"
+    folder: "content/banners"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Subtitle", name: "subtitle", widget: "string"}
+      - {label: "Image", name: "image", widget: "image"}
+      - {label: "Button Text", name: "button_text", widget: "string"}
+      - {label: "Button Link", name: "button_link", widget: "string"}
+      - {label: "Active", name: "active", widget: "boolean", default: true}
+
+  - name: "analytics"
+    label: "Analytics"
+    folder: "content/analytics"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "report_title"
+    fields:
+      - {label: "Report Title", name: "report_title", widget: "string"}
+      - {label: "Date", name: "date", widget: "datetime"}
+      - {label: "Page Views", name: "page_views", widget: "number"}
+      - {label: "Unique Visitors", name: "unique_visitors", widget: "number"}
+      - {label: "Orders", name: "orders", widget: "number"}
+      - {label: "Revenue", name: "revenue", widget: "number"}

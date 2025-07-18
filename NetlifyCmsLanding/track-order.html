@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order - TryneX</title>
+    <meta name="description" content="Track your order status and delivery information with TryneX.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <h1 class="logo">TryneX</h1>
+                <span class="tagline">Premium Gifts</span>
+            </div>
+            
+            <nav class="nav-menu" id="navMenu">
+                <ul class="nav-list">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="index.html#products" class="nav-link">Shop</a></li>
+                    <li><a href="products.html" class="nav-link">Products</a></li>
+                    <li><a href="index.html#categories" class="nav-link">Categories</a></li>
+                    <li><a href="track-order.html" class="nav-link active">Track Order</a></li>
+                    <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
+            
+            <div class="nav-actions">
+                <button class="search-btn" id="searchBtn">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="cart-btn" id="cartBtn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+                <button class="menu-toggle" id="menuToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Track Order Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Track Your Order</h1>
+            <p>Enter your order ID to track the status of your order</p>
+        </div>
+    </section>
+
+    <!-- Order Tracking Section -->
+    <section class="order-tracking">
+        <div class="container">
+            <div class="tracking-form">
+                <h2>Order Tracking</h2>
+                <div class="form-group">
+                    <label for="orderIdInput">Order ID</label>
+                    <div class="input-group">
+                        <input type="text" id="orderIdInput" placeholder="Enter your order ID (e.g., TXR-20250718-001)">
+                        <button class="track-btn" onclick="trackOrder()">
+                            <i class="fas fa-search"></i> Track Order
+                        </button>
+                    </div>
+                </div>
+                <div class="form-help">
+                    <p>You can find your order ID in the confirmation email or SMS sent to you after placing the order.</p>
+                </div>
+            </div>
+
+            <!-- Order Details Section -->
+            <div class="order-details" id="orderDetails" style="display: none;">
+                <div class="order-header">
+                    <h3>Order Details</h3>
+                    <div class="order-id-display">
+                        <span>Order ID: </span>
+                        <span id="displayOrderId"></span>
+                        <button class="copy-btn" onclick="copyOrderId()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="order-info-grid">
+                    <div class="order-info-card">
+                        <h4>Order Information</h4>
+                        <div class="info-row">
+                            <span>Order Date:</span>
+                            <span id="orderDate"></span>
+                        </div>
+                        <div class="info-row">
+                            <span>Order Status:</span>
+                            <span id="orderStatus" class="status"></span>
+                        </div>
+                        <div class="info-row">
+                            <span>Payment Method:</span>
+                            <span id="paymentMethod"></span>
+                        </div>
+                        <div class="info-row">
+                            <span>Payment Status:</span>
+                            <span id="paymentStatus" class="status"></span>
+                        </div>
+                        <div class="info-row">
+                            <span>Total Amount:</span>
+                            <span id="totalAmount"></span>
+                        </div>
+                    </div>
+
+                    <div class="order-info-card">
+                        <h4>Delivery Information</h4>
+                        <div class="info-row">
+                            <span>Customer Name:</span>
+                            <span id="customerName"></span>
+                        </div>
+                        <div class="info-row">
+                            <span>Phone Number:</span>
+                            <span id="customerPhone"></span>
+                        </div>
+                        <div class="info-row">
+                            <span>Email:</span>
+                            <span id="customerEmail"></span>
+                        </div>
+                        <div class="info-row">
+                            <span>Delivery Address:</span>
+                            <span id="deliveryAddress"></span>
+                        </div>
+                        <div class="info-row">
+                            <span>Delivery Fee:</span>
+                            <span id="deliveryFeeAmount"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Progress -->
+                <div class="order-progress">
+                    <h4>Order Progress</h4>
+                    <div class="progress-timeline">
+                        <div class="progress-step active" data-step="placed">
+                            <div class="step-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="step-content">
+                                <h5>Order Placed</h5>
+                                <p>Your order has been received</p>
+                            </div>
+                        </div>
+                        <div class="progress-step" data-step="confirmed">
+                            <div class="step-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="step-content">
+                                <h5>Order Confirmed</h5>
+                                <p>Your order has been confirmed</p>
+                            </div>
+                        </div>
+                        <div class="progress-step" data-step="processing">
+                            <div class="step-icon">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <div class="step-content">
+                                <h5>Processing</h5>
+                                <p>Your order is being prepared</p>
+                            </div>
+                        </div>
+                        <div class="progress-step" data-step="shipped">
+                            <div class="step-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="step-content">
+                                <h5>Shipped</h5>
+                                <p>Your order is on the way</p>
+                            </div>
+                        </div>
+                        <div class="progress-step" data-step="delivered">
+                            <div class="step-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="step-content">
+                                <h5>Delivered</h5>
+                                <p>Your order has been delivered</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="order-items">
+                    <h4>Order Items</h4>
+                    <div class="items-list" id="orderItemsList"></div>
+                </div>
+
+                <!-- Special Instructions -->
+                <div class="special-instructions" id="specialInstructions" style="display: none;">
+                    <h4>Special Instructions</h4>
+                    <p id="instructionsText"></p>
+                </div>
+
+                <!-- Order Actions -->
+                <div class="order-actions">
+                    <button class="whatsapp-contact-btn" onclick="contactViaWhatsApp()">
+                        <i class="fab fa-whatsapp"></i> Contact Support
+                    </button>
+                    <button class="reorder-btn" onclick="reorderItems()">
+                        <i class="fas fa-redo"></i> Reorder Items
+                    </button>
+                </div>
+            </div>
+
+            <!-- Order Not Found -->
+            <div class="order-not-found" id="orderNotFound" style="display: none;">
+                <div class="not-found-content">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Order Not Found</h3>
+                    <p>We couldn't find an order with this ID. Please check your order ID and try again.</p>
+                    <div class="help-links">
+                        <a href="index.html#contact">Contact Support</a>
+                        <a href="https://wa.me/8801747292277">WhatsApp Support</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Orders Section -->
+    <section class="recent-orders">
+        <div class="container">
+            <h2>Recent Orders</h2>
+            <div class="recent-orders-list" id="recentOrdersList">
+                <p class="no-orders">No recent orders found.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>TryneX</h3>
+                    <p>Premium gift collection for every special occasion. Express your love with our exclusive range of personalized gifts.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="https://wa.me/8801747292277"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#products">Shop</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="track-order.html">Track Order</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Categories</h4>
+                    <ul>
+                        <li><a href="#" onclick="filterProducts('mugs')">Mugs</a></li>
+                        <li><a href="#" onclick="filterProducts('t-shirts')">T-Shirts</a></li>
+                        <li><a href="#" onclick="filterProducts('keychains')">Keychains</a></li>
+                        <li><a href="#" onclick="filterProducts('luxury-hampers')">Luxury Hampers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="index.html#contact">Contact Us</a></li>
+                        <li><a href="track-order.html">Track Order</a></li>
+                        <li><a href="#" onclick="openCartModal()">My Cart</a></li>
+                        <li><a href="#" onclick="openPromoCodeModal()">Promo Codes</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 TryneX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script>
+        // Initialize track order page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTrackOrderPage();
+        });
+    </script>
+</body>
+</html>
